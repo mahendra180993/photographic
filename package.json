@@ -1,0 +1,11 @@
+{
+  "name": "lumina-atelier",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@netlify/functions": "^2.8.2"
+  }
+}

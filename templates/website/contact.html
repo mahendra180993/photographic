@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="mx-auto max-w-[1400px] px-4 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-16 lg:px-12">
+  <p class="eyebrow" data-reveal>Say hello</p>
+  <h1 class="mt-6 display-xl text-[clamp(2.4rem,9vw,8rem)]" data-reveal>Contact</h1>
+</section>
+
+<section class="mx-auto max-w-[1400px] px-4 pb-20 sm:px-6 sm:pb-28 lg:px-12">
+  <div class="grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-24">
+
+    <div data-reveal>
+      {% if site.enable_contact_form %}
+        <form method="post" novalidate class="site-form space-y-6">
+          {% csrf_token %}
+          {{ form.website }}
+
+          {% if form.non_field_errors %}
+            <div class="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            {% include "partials/field.html" with field=form.name %}
+            {% include "partials/field.html" with field=form.email %}
+            {% include "partials/field.html" with field=form.phone %}
+            {% include "partials/field.html" with field=form.event_type %}
+            {% include "partials/field.html" with field=form.event_date %}
+            {% include "partials/field.html" with field=form.location %}
+            {% include "partials/field.html" with field=form.budget %}
+            {% include "partials/field.html" with field=form.subject %}
+          </div>
+
+          {% include "partials/field.html" with field=form.message %}
+          {% include "partials/field.html" with field=form.consent %}
+
+          <button type="submit" class="btn-gold w-full sm:w-auto">Send enquiry</button>
+          <p class="text-xs text-paper/40">We reply to every enquiry within two working days.</p>
+        </form>
+      {% else %}
+        <div class="rounded-xl border border-gold/15 bg-surface p-8">
+          <h2 class="font-display text-2xl">Enquiries by email</h2>
+          <p class="mt-3 text-sm text-paper/60">Our form is temporarily closed. Please write to us directly.</p>
+          <a href="mailto:{{ site.contact_email }}" class="btn-gold mt-6">{{ site.contact_email }}</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <aside class="space-y-10" data-reveal data-reveal-delay="0.1">
+      <div>
+        <h2 class="text-[11px] uppercase tracking-luxe text-paper/40">The studio</h2>
+        <p class="mt-4 font-display text-2xl">{{ site.full_address }}</p>
+        <p class="mt-4 text-sm text-paper/60">{{ site.opening_hours }}</p>
+      </div>
+      <div class="rule"></div>
+      <div class="space-y-3 text-sm">
+        <p><a href="mailto:{{ site.contact_email }}" class="hover:text-gold">{{ site.contact_email }}</a></p>
+        <p><a href="tel:{{ site.phone }}" class="hover:text-gold">{{ site.phone }}</a></p>
+        {% if site.whatsapp %}<p>WhatsApp: {{ site.whatsapp }}</p>{% endif %}
+      </div>
+
+      {% if services %}
+        <div class="rule"></div>
+        <div>
+          <h2 class="text-[11px] uppercase tracking-luxe text-paper/40">Popular commissions</h2>
+          <ul class="mt-4 space-y-2 text-sm">
+            {% for service in services %}
+              <li><a href="{{ service.get_absolute_url }}" class="text-paper/70 hover:text-gold">{{ service.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if site.map_embed_url %}
+        <div class="overflow-hidden rounded-sm border border-gold/15">
+          <iframe src="{{ site.map_embed_url }}" class="h-64 w-full" loading="lazy" title="Studio location"></iframe>
+        </div>
+      {% endif %}
+
+      <div class="rounded-sm border border-gold/20 bg-slateink p-7 text-paper">
+        <p class="text-[11px] uppercase tracking-luxe text-gold">Existing client?</p>
+        <p class="mt-3 text-sm text-paper/70">Open your private gallery to view, select and download your photographs.</p>
+        <a href="{% url 'accounts:client_login' %}" class="btn-gold mt-6 w-full">Client area</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% if faqs %}
+<section class="border-t border-gold/15 py-20">
+  <div class="mx-auto max-w-[900px] px-6" data-accordion>
+    <p class="eyebrow">Before you write</p>
+    <div class="mt-8 divide-y divide-gold/15 border-y border-gold/15">
+      {% for faq in faqs %}
+        <div data-accordion-item class="py-5">
+          <button type="button" data-accordion-trigger class="flex w-full items-center justify-between gap-6 text-left">
+            <span class="font-display text-lg">{{ faq.question }}</span><span class="text-gold">+</span>
+          </button>
+          <div data-accordion-panel class="max-h-0 overflow-hidden transition-all duration-500">
+            <p class="pt-4 text-sm leading-relaxed text-paper/60">{{ faq.answer|linebreaksbr }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,24 @@
+# Lumina Atelier — Netlify deployment
+#
+# Netlify serves collected static files from the CDN and routes everything else
+# through netlify/functions/django.mts, which proxies to your Django backend
+# (Render, Railway, Fly.io, etc.). Set DJANGO_BACKEND_URL in the Netlify UI.
+
+[build]
+  command = "bash scripts/netlify_build.sh"
+  publish = "staticfiles"
+  functions = "netlify/functions"
+
+[build.environment]
+  PYTHON_VERSION = "3.12"
+  NODE_VERSION = "20"
+  NETLIFY = "true"
+  DJANGO_DEBUG = "False"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

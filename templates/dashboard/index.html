@@ -1,0 +1,204 @@
+{% extends "dashboard/base.html" %}
+{% load ui humanize %}
+
+{% block page_heading %}Good to see you, {{ user.get_short_name|default:user.username }}{% endblock %}
+
+{% block content %}
+
+{# ------------------------------------------------------------- stat row #}
+<section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="dash-card p-5">
+    <p class="text-[11px] uppercase tracking-luxe text-slate-400">Customers</p>
+    <p class="mt-3 font-display text-4xl">{{ stat_customers }}</p>
+    <p class="mt-2 text-xs text-emerald-600">+{{ stat_customers_new }} in 30 days</p>
+  </div>
+  <div class="dash-card p-5">
+    <p class="text-[11px] uppercase tracking-luxe text-slate-400">Galleries</p>
+    <p class="mt-3 font-display text-4xl">{{ stat_galleries }}</p>
+    <p class="mt-2 text-xs text-slate-500">{{ stat_galleries_live }} live right now</p>
+  </div>
+  <div class="dash-card p-5">
+    <p class="text-[11px] uppercase tracking-luxe text-slate-400">Photographs</p>
+    <p class="mt-3 font-display text-4xl">{{ stat_images }}</p>
+    <p class="mt-2 text-xs text-slate-500">{{ stat_storage|filesize }} stored</p>
+  </div>
+  <div class="dash-card p-5">
+    <p class="text-[11px] uppercase tracking-luxe text-slate-400">Downloads</p>
+    <p class="mt-3 font-display text-4xl">{{ stat_downloads }}</p>
+    <p class="mt-2 text-xs text-slate-500">last 30 days</p>
+  </div>
+</section>
+
+{# ------------------------------------------------------------- alerts #}
+{% if stat_messages_new or stat_selections %}
+<section class="mt-4 grid gap-4 sm:grid-cols-2">
+  {% if stat_messages_new %}
+    <a href="{% url 'dashboard:message_list' %}" class="dash-card flex items-center justify-between p-5 transition hover:border-gold">
+      <div>
+        <p class="text-sm font-medium">{{ stat_messages_new }} new enquir{{ stat_messages_new|pluralize:"y,ies" }}</p>
+        <p class="mt-1 text-xs text-slate-500">Waiting for a reply from the studio</p>
+      </div>
+      <span class="text-gold">&rarr;</span>
+    </a>
+  {% endif %}
+  {% if stat_selections %}
+    <a href="{% url 'dashboard:album_list' %}" class="dash-card flex items-center justify-between p-5 transition hover:border-gold">
+      <div>
+        <p class="text-sm font-medium">{{ stat_selections }} selection{{ stat_selections|pluralize }} to review</p>
+        <p class="mt-1 text-xs text-slate-500">Clients have submitted album picks</p>
+      </div>
+      <span class="text-gold">&rarr;</span>
+    </a>
+  {% endif %}
+</section>
+{% endif %}
+
+<div class="mt-6 grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+
+  {# ------------------------------------------------------------- chart #}
+  <section class="dash-card p-4 sm:p-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="font-display text-lg">Last six months</h2>
+      <div class="flex flex-wrap items-center gap-4 text-[11px] uppercase tracking-luxe text-slate-400">
+        <span class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-ink"></span>Galleries</span>
+        <span class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-gold"></span>Downloads</span>
+      </div>
+    </div>
+
+    <div class="dash-chart mt-8">
+      <div class="dash-chart-inner flex h-56 items-end gap-3 sm:gap-4">
+        {% for bucket in chart %}
+          <div class="flex flex-1 flex-col items-center gap-2">
+            <div class="flex h-full w-full items-end justify-center gap-1 sm:gap-1.5">
+              <div class="w-1/3 min-w-[6px] rounded-t bg-ink transition-all duration-700" style="height:{{ bucket.gallery_pct }}%" title="{{ bucket.galleries }} galleries"></div>
+              <div class="w-1/3 min-w-[6px] rounded-t bg-gold transition-all duration-700" style="height:{{ bucket.download_pct }}%" title="{{ bucket.downloads }} downloads"></div>
+            </div>
+            <span class="text-[10px] uppercase tracking-luxe text-slate-400 sm:text-[11px]">{{ bucket.label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {# ---------------------------------------------------------- activity #}
+  <section class="dash-card p-6">
+    <div class="flex items-center justify-between">
+      <h2 class="font-display text-lg">Recent activity</h2>
+      <a href="{% url 'dashboard:activity' %}" class="text-xs text-slate-400 hover:text-gold">View all</a>
+    </div>
+    <ul class="mt-5 space-y-4">
+      {% for entry in recent_activity %}
+        <li class="flex gap-3 text-sm">
+          <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span>
+          <div class="min-w-0">
+            <p class="truncate text-slate-700">{{ entry.description|default:entry.get_action_display }}</p>
+            <p class="mt-0.5 text-[11px] text-slate-400">
+              {{ entry.actor.get_display_name|default:"System" }} &middot; {{ entry.created_at|naturaltime }}
+            </p>
+          </div>
+        </li>
+      {% empty %}
+        <li class="text-sm text-slate-400">No activity recorded yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+<div class="mt-6 grid gap-6 xl:grid-cols-2">
+
+  {# --------------------------------------------------- recent galleries #}
+  <section class="dash-card overflow-hidden">
+    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+      <h2 class="font-display text-lg">Latest galleries</h2>
+      <a href="{% url 'dashboard:gallery_list' %}" class="text-xs text-slate-400 hover:text-gold">All galleries</a>
+    </div>
+    <table class="dash-table w-full text-sm">
+      <tbody>
+        {% for gallery in recent_galleries %}
+          <tr>
+            <td>
+              <a href="{{ gallery.get_dashboard_url }}" class="font-medium text-slate-800 hover:text-gold">{{ gallery.title }}</a>
+              <p class="text-xs text-slate-400">{{ gallery.customer.full_name }}</p>
+            </td>
+            <td>{% status_pill gallery.status %}</td>
+            <td class="text-right text-xs text-slate-400">{{ gallery.created_at|naturaltime }}</td>
+          </tr>
+        {% empty %}
+          <tr><td class="px-6 py-8 text-center text-slate-400">No galleries yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  {# ----------------------------------------------------------- expiring #}
+  <section class="dash-card overflow-hidden">
+    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+      <h2 class="font-display text-lg">Expiring soon</h2>
+      <span class="text-xs text-slate-400">Next 21 days</span>
+    </div>
+    <table class="dash-table w-full text-sm">
+      <tbody>
+        {% for gallery in expiring_galleries %}
+          <tr>
+            <td>
+              <a href="{{ gallery.get_dashboard_url }}" class="font-medium text-slate-800 hover:text-gold">{{ gallery.title }}</a>
+              <p class="text-xs text-slate-400">{{ gallery.customer.full_name }}</p>
+            </td>
+            <td class="text-right text-xs text-amber-600">{{ gallery.days_left }} days left</td>
+          </tr>
+        {% empty %}
+          <tr><td class="px-6 py-8 text-center text-slate-400">Nothing expiring soon.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  {# ----------------------------------------------------------- messages #}
+  <section class="dash-card overflow-hidden">
+    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+      <h2 class="font-display text-lg">Latest enquiries</h2>
+      <a href="{% url 'dashboard:message_list' %}" class="text-xs text-slate-400 hover:text-gold">Inbox</a>
+    </div>
+    <table class="dash-table w-full text-sm">
+      <tbody>
+        {% for msg in recent_messages %}
+          <tr>
+            <td>
+              <a href="{% url 'dashboard:message_detail' msg.pk %}" class="font-medium text-slate-800 hover:text-gold">{{ msg.name }}</a>
+              <p class="truncate text-xs text-slate-400">{{ msg.display_subject }}</p>
+            </td>
+            <td>{% status_pill msg.status %}</td>
+            <td class="text-right text-xs text-slate-400">{{ msg.created_at|naturaltime }}</td>
+          </tr>
+        {% empty %}
+          <tr><td class="px-6 py-8 text-center text-slate-400">Inbox is empty.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  {# ------------------------------------------------------------- albums #}
+  <section class="dash-card overflow-hidden">
+    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+      <h2 class="font-display text-lg">Album requests</h2>
+      <a href="{% url 'dashboard:album_list' %}" class="text-xs text-slate-400 hover:text-gold">All requests</a>
+    </div>
+    <table class="dash-table w-full text-sm">
+      <tbody>
+        {% for album in recent_albums %}
+          <tr>
+            <td>
+              <a href="{% url 'dashboard:album_detail' album.pk %}" class="font-medium text-slate-800 hover:text-gold">{{ album.customer.full_name }}</a>
+              <p class="truncate text-xs text-slate-400">{{ album.gallery.title }}</p>
+            </td>
+            <td class="text-xs text-slate-500">{{ album.selection_count }} picks</td>
+            <td class="text-right">{% status_pill album.status %}</td>
+          </tr>
+        {% empty %}
+          <tr><td class="px-6 py-8 text-center text-slate-400">No album requests yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}

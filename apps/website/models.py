@@ -1,0 +1,1 @@
+# The website app is presentation-only; its content lives in the cms app.

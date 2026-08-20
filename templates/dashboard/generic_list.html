@@ -1,0 +1,113 @@
+{% extends "dashboard/base.html" %}
+{% load ui %}
+
+{% block header_actions %}
+  {% if create_url %}<a href="{{ create_url }}" class="rounded-lg bg-gold px-3 py-2 text-xs font-medium text-white hover:brightness-95 sm:px-4">{{ create_label }}</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="dash-card overflow-hidden">
+
+  <div class="flex flex-col gap-4 border-b border-slate-100 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
+    <p class="text-sm text-slate-500">{{ total_count }} record{{ total_count|pluralize }}</p>
+
+    {% if searchable %}
+      <form method="get" class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+        <input type="search" name="q" value="{{ search_term }}" placeholder="Search..."
+               class="w-full min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 sm:w-56 sm:flex-none">
+        <button type="submit" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 hover:border-gold hover:text-gold">Search</button>
+        {% if search_term %}<a href="{{ request.path }}" class="text-xs text-slate-400 hover:text-slate-700">Clear</a>{% endif %}
+      </form>
+    {% endif %}
+  </div>
+
+  {% if object_list %}
+    {# Mobile card list #}
+    <div class="data-card-list p-4 md:hidden">
+      {% for object in object_list %}
+        <article class="rounded-xl border border-slate-200 bg-white p-4" data-filter-row>
+          {% for label, accessor in columns %}
+            <div class="flex items-start justify-between gap-3 {% if not forloop.first %}mt-2 border-t border-slate-100 pt-2{% endif %}">
+              <span class="text-[10px] uppercase tracking-luxe text-slate-400">{{ label }}</span>
+              <span class="max-w-[65%] text-right text-sm text-slate-700">
+                {% if forloop.first and detail_url_name %}
+                  <a href="{% url detail_url_name object.pk %}" class="font-medium text-slate-800 hover:text-gold">{{ object|attr:accessor }}</a>
+                {% elif label == 'Status' %}
+                  {% status_pill object|attr:accessor %}
+                {% else %}
+                  {{ object|attr:accessor|default_if_none:"-" }}
+                {% endif %}
+              </span>
+            </div>
+          {% endfor %}
+          <div class="mt-3 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-3">
+            {% if detail_url_name %}<a href="{% url detail_url_name object.pk %}" class="text-xs text-slate-500 hover:text-gold">Open</a>{% endif %}
+            {% if edit_url_name %}<a href="{% url edit_url_name object.pk %}" class="text-xs text-slate-500 hover:text-gold">Edit</a>{% endif %}
+            {% if delete_url_name %}<a href="{% url delete_url_name object.pk %}" class="text-xs text-rose-500 hover:text-rose-700">Delete</a>{% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    {# Desktop table #}
+    <div class="dash-table-wrap dash-table-desktop hidden md:block">
+      <table class="dash-table w-full min-w-[720px] text-sm">
+        <thead class="bg-slate-50/70">
+          <tr>
+            {% for label, accessor in columns %}<th>{{ label }}</th>{% endfor %}
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for object in object_list %}
+            <tr data-filter-row>
+              {% for label, accessor in columns %}
+                <td>
+                  {% if forloop.first and detail_url_name %}
+                    <a href="{% url detail_url_name object.pk %}" class="font-medium text-slate-800 hover:text-gold">{{ object|attr:accessor }}</a>
+                  {% elif label == 'Status' %}
+                    {% status_pill object|attr:accessor %}
+                  {% else %}
+                    <span class="text-slate-600">{{ object|attr:accessor|default_if_none:"-" }}</span>
+                  {% endif %}
+                </td>
+              {% endfor %}
+              <td class="whitespace-nowrap text-right">
+                {% if detail_url_name %}
+                  <a href="{% url detail_url_name object.pk %}" class="text-xs text-slate-500 hover:text-gold">Open</a>
+                {% endif %}
+                {% if edit_url_name %}
+                  <a href="{% url edit_url_name object.pk %}" class="ml-3 text-xs text-slate-500 hover:text-gold">Edit</a>
+                {% endif %}
+                {% if delete_url_name %}
+                  <a href="{% url delete_url_name object.pk %}" class="ml-3 text-xs text-rose-500 hover:text-rose-700">Delete</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="px-6 py-20 text-center">
+      <p class="font-display text-xl text-slate-700">Nothing to show</p>
+      <p class="mx-auto mt-2 max-w-sm text-sm text-slate-500">{{ empty_message }}</p>
+      {% if create_url %}<a href="{{ create_url }}" class="mt-6 inline-block rounded-lg bg-ink px-4 py-2 text-xs font-medium text-white">{{ create_label }}</a>{% endif %}
+    </div>
+  {% endif %}
+
+  {% if is_paginated %}
+    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-4 text-sm sm:px-5">
+      <span class="text-slate-500">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+      <div class="flex gap-2">
+        {% if page_obj.has_previous %}
+          <a href="{% query_replace page=page_obj.previous_page_number %}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs hover:border-gold">Previous</a>
+        {% endif %}
+        {% if page_obj.has_next %}
+          <a href="{% query_replace page=page_obj.next_page_number %}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs hover:border-gold">Next</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

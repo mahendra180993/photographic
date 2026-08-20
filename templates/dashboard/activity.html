@@ -1,0 +1,47 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+
+{% block content %}
+<div class="dash-card overflow-hidden">
+  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+    <form method="get" class="flex items-center gap-2">
+      <select name="action" data-autosubmit class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+        <option value="">All actions</option>
+        {% for value, label in actions %}
+          <option value="{{ value }}" {% if current_action == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </form>
+    <input id="quick-filter" type="search" placeholder="Filter on this page..." class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="dash-table w-full min-w-[720px] text-sm">
+      <thead class="bg-slate-50/70"><tr><th>Action</th><th>Description</th><th>Actor</th><th>IP</th><th class="text-right">When</th></tr></thead>
+      <tbody>
+        {% for entry in entries %}
+          <tr data-filter-row>
+            <td class="whitespace-nowrap text-xs uppercase tracking-wide text-slate-500">{{ entry.get_action_display }}</td>
+            <td class="text-slate-700">{{ entry.description|default:"-" }}</td>
+            <td class="text-slate-500">{{ entry.actor.get_display_name|default:"System" }}</td>
+            <td class="text-xs text-slate-400">{{ entry.ip_address|default:"-" }}</td>
+            <td class="text-right text-xs text-slate-400">{{ entry.created_at|naturaltime }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="px-6 py-14 text-center text-slate-400">No activity recorded.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+    <div class="flex items-center justify-between border-t border-slate-100 px-5 py-4 text-sm">
+      <span class="text-slate-500">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+      <div class="flex gap-2">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs">Previous</a>{% endif %}
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs">Next</a>{% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

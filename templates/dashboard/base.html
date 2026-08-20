@@ -1,0 +1,114 @@
+{% load static %}<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  {% include "partials/head.html" %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased" data-lenis="off">
+  {% include "partials/messages.html" %}
+
+  <div class="flex min-h-screen">
+
+    {# ------------------------------------------------------- sidebar #}
+    <aside id="dash-sidebar"
+           class="fixed inset-y-0 left-0 z-50 w-72 -translate-x-full overflow-y-auto bg-ink px-5 py-6 text-paper transition-transform duration-300 lg:static lg:translate-x-0">
+      <div class="flex items-center justify-between">
+        <a href="{% url 'dashboard:index' %}" class="flex items-center gap-3">
+          <span class="grid h-9 w-9 place-items-center rounded-full border border-gold/60 font-display text-sm text-gold">LA</span>
+          <span>
+            <span class="block font-display text-base leading-none">{{ BRAND_NAME }}</span>
+            <span class="mt-1 block text-[10px] uppercase tracking-luxe text-paper/35">Studio</span>
+          </span>
+        </a>
+        <button data-sidebar-close class="text-2xl leading-none text-paper/50 lg:hidden" aria-label="Close">&times;</button>
+      </div>
+
+      <nav class="mt-8 space-y-6">
+        <div>
+          <p class="px-3 text-[10px] uppercase tracking-luxe text-paper/25">Studio</p>
+          <div class="mt-2 space-y-1">
+            <a href="{% url 'dashboard:index' %}" class="dash-link {% if active_nav == 'overview' or not active_nav %}is-active{% endif %}">Overview</a>
+            <a href="{% url 'dashboard:customer_list' %}" class="dash-link {% if active_nav == 'customers' %}is-active{% endif %}">Customers</a>
+            <a href="{% url 'dashboard:gallery_list' %}" class="dash-link {% if active_nav == 'galleries' %}is-active{% endif %}">Galleries</a>
+            <a href="{% url 'dashboard:album_list' %}" class="dash-link {% if active_nav == 'albums' %}is-active{% endif %}">Album requests</a>
+            <a href="{% url 'dashboard:message_list' %}" class="dash-link {% if active_nav == 'messages' %}is-active{% endif %}">Enquiries</a>
+          </div>
+        </div>
+
+        <div>
+          <p class="px-3 text-[10px] uppercase tracking-luxe text-paper/25">Website</p>
+          <div class="mt-2 space-y-1">
+            <a href="{% url 'dashboard:portfolio_category_list' %}" class="dash-link {% if active_nav == 'portfolio' %}is-active{% endif %}">Portfolio</a>
+            <a href="{% url 'dashboard:service_list' %}" class="dash-link {% if active_nav == 'services' %}is-active{% endif %}">Services</a>
+            <a href="{% url 'dashboard:team_list' %}" class="dash-link {% if active_nav == 'team' %}is-active{% endif %}">Team</a>
+            <a href="{% url 'dashboard:testimonial_list' %}" class="dash-link {% if active_nav == 'cms' %}is-active{% endif %}">Testimonials &amp; FAQ</a>
+          </div>
+        </div>
+
+        <div>
+          <p class="px-3 text-[10px] uppercase tracking-luxe text-paper/25">Insights</p>
+          <div class="mt-2 space-y-1">
+            <a href="{% url 'dashboard:analytics' %}" class="dash-link {% if active_nav == 'analytics' %}is-active{% endif %}">Analytics</a>
+            <a href="{% url 'dashboard:notifications' %}" class="dash-link {% if active_nav == 'notifications' %}is-active{% endif %}">
+              Notifications {% if unread_notifications %}<span class="ml-auto rounded-full bg-gold px-2 text-[10px] text-ink">{{ unread_notifications }}</span>{% endif %}
+            </a>
+            <a href="{% url 'dashboard:settings_site' %}" class="dash-link {% if active_nav == 'settings' %}is-active{% endif %}">Settings</a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="mt-10 border-t border-white/10 pt-5">
+        <div class="flex items-center gap-3 px-2">
+          <span class="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-xs">{{ user.initials }}</span>
+          <div class="min-w-0">
+            <p class="truncate text-sm">{{ user.get_display_name }}</p>
+            <p class="text-[10px] uppercase tracking-luxe text-paper/35">{{ user.role_label }}</p>
+          </div>
+        </div>
+        <div class="mt-4 flex gap-2 px-2">
+          <a href="{% url 'website:home' %}" class="flex-1 rounded-lg border border-white/15 px-3 py-2 text-center text-[10px] uppercase tracking-luxe text-paper/60 hover:border-gold hover:text-gold">Website</a>
+          <form method="post" action="{% url 'accounts:logout' %}" class="flex-1">
+            {% csrf_token %}
+            <button type="submit" class="w-full rounded-lg border border-white/15 px-3 py-2 text-[10px] uppercase tracking-luxe text-paper/60 hover:border-gold hover:text-gold">Sign out</button>
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <div id="dash-backdrop" data-sidebar-close class="fixed inset-0 z-40 hidden bg-ink/50 lg:hidden"></div>
+
+    {# ------------------------------------------------------- content #}
+    <div class="flex min-w-0 flex-1 flex-col">
+      <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 lg:px-8">
+          <div class="flex min-w-0 items-center gap-3">
+            <button data-sidebar-open type="button" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-slate-200 lg:hidden" aria-label="Open menu">
+              <span class="dash-burger" aria-hidden="true"><span></span><span></span><span></span></span>
+            </button>
+            <div class="min-w-0">
+              <h1 class="truncate font-display text-lg leading-tight sm:text-xl">{% block page_heading %}{{ page_title }}{% endblock %}</h1>
+              {% if page_subtitle %}<p class="truncate text-xs text-slate-500">{{ page_subtitle }}</p>{% endif %}
+            </div>
+          </div>
+          <div class="flex shrink-0 items-center gap-2">
+            {% block header_actions %}{% endblock %}
+            <a href="{% url 'dashboard:gallery_create' %}" class="hidden rounded-lg bg-ink px-4 py-2 text-xs font-medium text-white hover:bg-slate-800 sm:inline-block">New gallery</a>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-x-hidden px-4 py-6 sm:px-5 sm:py-7 lg:px-8">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="border-t border-slate-200 px-5 py-5 text-xs text-slate-400 lg:px-8">
+        {{ BRAND_NAME }} studio dashboard &middot; {% now "Y" %}
+      </footer>
+    </div>
+  </div>
+
+  {% include "partials/scripts.html" %}
+  <script src="{% static 'js/dashboard.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

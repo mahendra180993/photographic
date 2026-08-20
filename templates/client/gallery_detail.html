@@ -1,0 +1,164 @@
+{% extends "client/_client_base.html" %}
+{% load static humanize ui %}
+
+{% block content %}
+<div id="client-gallery"
+     data-select-url="{% url 'client:toggle_selection' gallery.slug %}"
+     data-selection-limit="{{ selection_limit }}"
+     data-selected-count="{{ selected_count }}"
+     data-allow-download="{% if can_download %}1{% else %}0{% endif %}">
+
+  {# ------------------------------------------------------------- header #}
+  <section class="relative overflow-hidden rounded-2xl border border-white/10">
+    <div class="media-frame aspect-[21/9] min-h-[280px]">
+      {% if gallery.cover %}
+        <img src="{{ gallery.cover.url }}" alt="{{ gallery.title }}">
+      {% else %}
+        <img src="{% static 'img/placeholder.svg' %}" alt="{{ gallery.title }}">
+      {% endif %}
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-transparent"></div>
+
+    <div class="absolute inset-x-0 bottom-0 p-7 lg:p-10">
+      <a href="{% url 'client:index' %}" class="text-[11px] uppercase tracking-luxe text-paper/50 hover:text-gold">&larr; All galleries</a>
+      <h1 class="mt-4 font-display text-4xl lg:text-6xl">{{ gallery.title }}</h1>
+      <p class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[11px] uppercase tracking-luxe text-paper/45">
+        {% if gallery.event_date %}<span>{{ gallery.event_date|date:"j F Y" }}</span>{% endif %}
+        {% if gallery.location %}<span>{{ gallery.location }}</span>{% endif %}
+        {% if gallery.photographer %}<span>Shot by {{ gallery.photographer.display_name }}</span>{% endif %}
+        <span>{{ image_total }} photographs</span>
+      </p>
+    </div>
+  </section>
+
+  {% if gallery.welcome_message %}
+    <section class="mt-8 rounded-xl border border-gold/25 bg-gold/[0.06] p-7">
+      <p class="text-sm leading-relaxed text-paper/80">{{ gallery.welcome_message|linebreaksbr }}</p>
+    </section>
+  {% endif %}
+
+  {# ------------------------------------------------------------ toolbar #}
+  <section class="gallery-toolbar mt-6 rounded-xl border border-white/10 bg-ink/95 px-4 py-4 backdrop-blur sm:mt-8 sm:px-5">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+      <div class="flex flex-wrap items-center gap-1 text-[11px] uppercase tracking-luxe sm:gap-2">
+        <button type="button" data-filter="all" class="is-active rounded-full px-3 py-2 text-gold sm:px-4">All ({{ image_total }})</button>
+        <button type="button" data-filter="selected" class="rounded-full px-3 py-2 text-paper/50 transition hover:text-gold sm:px-4">
+          Selected (<span data-selected-count>{{ selected_count }}</span>)
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        {% if gallery.days_left is not None %}
+          <span class="rounded-full border border-white/15 px-3 py-1.5 text-[10px] uppercase tracking-luxe text-paper/50">
+            Expires in {{ gallery.days_left }} days
+          </span>
+        {% endif %}
+        {% if can_download and gallery.allow_bulk_download %}
+          <a href="{% url 'client:download_all' gallery.slug %}" class="btn-ghost !px-3 !py-2 text-paper">Download all</a>
+          {% if selected_count %}
+            <a href="{% url 'client:download_all' gallery.slug %}?selection=1" class="btn-ghost !px-3 !py-2 text-paper">Download picks</a>
+          {% endif %}
+        {% endif %}
+        {% if can_select %}
+          <button type="button" data-toggle-submit-panel class="btn-gold !px-3 !py-2">Submit selection</button>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if can_select and selection_limit %}
+      <div class="mt-4">
+        <div class="h-1 w-full overflow-hidden rounded-full bg-white/10">
+          <div id="selection-progress" class="h-full rounded-full bg-gold transition-all duration-500" style="width:0%"></div>
+        </div>
+        <p class="mt-2 text-[10px] uppercase tracking-luxe text-paper/40">
+          <span data-selected-count>{{ selected_count }}</span> of {{ selection_limit }} selected
+        </p>
+      </div>
+    {% endif %}
+  </section>
+
+  {# ------------------------------------------------------- submit panel #}
+  {% if can_select %}
+    <section id="submit-panel" class="mt-6 hidden rounded-xl border border-gold/30 bg-white/[0.04] p-7">
+      <h2 class="font-display text-2xl">Send your selection to the studio</h2>
+      <p class="mt-2 text-sm text-paper/55">
+        We will use these picks to design your album. You can still change your mind - just let us know.
+      </p>
+      <form id="selection-submit-form" method="post" action="{% url 'client:submit_selection' gallery.slug %}" class="mt-6 grid gap-5 md:grid-cols-2">
+        {% csrf_token %}
+        <div>
+          <label class="mb-1.5 block text-[11px] uppercase tracking-luxe text-paper/45">{{ submit_form.album_type.label }}</label>
+          {{ submit_form.album_type }}
+        </div>
+        <div>
+          <label class="mb-1.5 block text-[11px] uppercase tracking-luxe text-paper/45">{{ submit_form.notes.label }}</label>
+          {{ submit_form.notes }}
+        </div>
+        <div class="md:col-span-2">
+          <button type="submit" class="btn-gold">Submit <span data-selected-count>{{ selected_count }}</span> photographs</button>
+        </div>
+      </form>
+      {% if latest_request and latest_request.submitted_at %}
+        <p class="mt-5 border-t border-white/10 pt-5 text-xs text-paper/45">
+          Last submitted {{ latest_request.submitted_at|naturaltime }} &middot; status: {{ latest_request.get_status_display }}
+        </p>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  {# --------------------------------------------------------------- grid #}
+  <section id="lightgallery" class="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-3 md:grid-cols-3 xl:grid-cols-4">
+    {% for image in images %}
+      <figure class="photo-card {% if image.id in selected_ids %}is-selected{% endif %}"
+              data-image="{{ image.uuid }}">
+        <a href="{{ image.image.url }}" data-lg data-sub-html="{{ image.display_title }}" class="media-frame block aspect-[3/4]">
+          <img src="{{ image.image.url }}" alt="{{ image.display_alt }}" loading="lazy">
+          {% if gallery.watermark_enabled %}
+            <span class="watermark-tile">{{ gallery.watermark_text }}</span>
+          {% endif %}
+        </a>
+
+        <figcaption class="flex items-center justify-between gap-1 px-0.5 py-2 sm:gap-2 sm:px-1">
+          <span class="truncate text-[10px] text-paper/40 sm:text-[11px]">{{ image.display_title|truncatechars:18 }}</span>
+          <span class="flex shrink-0 items-center gap-1 sm:gap-1.5">
+            {% if can_select %}
+              <button type="button" data-select-image="{{ image.uuid }}"
+                      class="select-pill rounded-full border border-white/20 px-2 py-1 text-[9px] uppercase tracking-luxe text-paper/70 hover:border-gold hover:text-gold sm:px-3 sm:text-[10px]">
+                <span data-select-label>{% if image.id in selected_ids %}Selected{% else %}Select{% endif %}</span>
+              </button>
+            {% endif %}
+            {% if can_download and image.allow_download %}
+              <a href="{% url 'client:image_download' gallery.slug image.uuid %}"
+                 class="rounded-full border border-white/20 px-2 py-1 text-[9px] uppercase tracking-luxe text-paper/70 hover:border-gold hover:text-gold sm:px-3 sm:text-[10px]"
+                 title="Download original">&darr;</a>
+            {% endif %}
+          </span>
+        </figcaption>
+      </figure>
+    {% empty %}
+      <div class="col-span-full rounded-xl border border-dashed border-white/15 p-16 text-center">
+        <p class="font-display text-2xl">Photographs are on their way</p>
+        <p class="mt-3 text-sm text-paper/50">This gallery has not been filled yet. We will email you the moment it is ready.</p>
+      </div>
+    {% endfor %}
+  </section>
+
+  {# ------------------------------------------------------- floating bar #}
+  {% if can_select %}
+    <div id="selection-bar"
+         class="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex translate-y-32 justify-center px-4 opacity-0 transition-all duration-500 sm:bottom-6">
+      <div class="pointer-events-auto flex max-w-full items-center gap-3 rounded-full border border-gold/40 bg-ink/95 px-4 py-3 shadow-lift backdrop-blur sm:gap-5 sm:px-6">
+        <span class="text-[10px] uppercase tracking-luxe text-paper/60 sm:text-[11px]">
+          <span data-selected-count class="font-display text-base text-gold">{{ selected_count }}</span> selected
+        </span>
+        <button type="button" data-toggle-submit-panel class="btn-gold !px-3 !py-2">Review &amp; submit</button>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/gallery.js' %}" defer></script>
+{% endblock %}

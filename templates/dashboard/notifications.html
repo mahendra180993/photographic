@@ -1,0 +1,41 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+
+{% block header_actions %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">Mark all read</button>
+  </form>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-3">
+  {% for note in notifications %}
+    <article class="dash-card p-5 {% if not note.is_read %}border-gold/50 bg-amber-50/40{% endif %}">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-500">{{ note.get_category_display }}</span>
+            <h2 class="truncate font-medium text-slate-800">{{ note.title }}</h2>
+          </div>
+          <p class="mt-2 text-sm text-slate-600">{{ note.message }}</p>
+          {% if note.url %}<a href="{{ note.url }}" class="mt-3 inline-block text-xs text-gold hover:underline">Open &rarr;</a>{% endif %}
+        </div>
+        <time class="shrink-0 text-[11px] text-slate-400">{{ note.created_at|naturaltime }}</time>
+      </div>
+    </article>
+  {% empty %}
+    <div class="dash-card px-6 py-20 text-center">
+      <p class="font-display text-xl">All clear</p>
+      <p class="mt-2 text-sm text-slate-500">You have no notifications.</p>
+    </div>
+  {% endfor %}
+
+  {% if is_paginated %}
+    <div class="flex justify-center gap-2 pt-4 text-sm">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs">Previous</a>{% endif %}
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs">Next</a>{% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

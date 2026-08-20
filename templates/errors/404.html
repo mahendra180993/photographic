@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Page not found &middot; {{ BRAND_NAME }}{% endblock %}
+{% block content %}
+<section class="mx-auto flex min-h-[70vh] max-w-3xl flex-col items-center justify-center px-6 text-center">
+  <p class="text-[11px] uppercase tracking-luxe text-gold">Error 404</p>
+  <h1 class="mt-6 font-display text-6xl leading-none lg:text-8xl">Out of frame</h1>
+  <p class="mt-6 max-w-md text-ink/60">The page you were looking for has been moved, renamed, or never existed.</p>
+  <a href="{% url 'website:home' %}" class="btn-gold mt-10">Return home</a>
+</section>
+{% endblock %}

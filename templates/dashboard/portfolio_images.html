@@ -1,0 +1,69 @@
+{% extends "dashboard/base.html" %}
+{% load ui %}
+
+{% block header_actions %}
+  <a href="{% url 'dashboard:portfolio_category_list' %}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">Collections</a>
+  <a href="{% url 'dashboard:portfolio_image_create' %}" class="rounded-lg bg-gold px-4 py-2 text-xs font-medium text-white">Add one</a>
+{% endblock %}
+
+{% block content %}
+<section class="dash-card p-6">
+  <h3 class="font-display text-lg">Bulk upload</h3>
+  <form method="post" action="{% url 'dashboard:portfolio_bulk_upload' %}" enctype="multipart/form-data" class="mt-4 grid gap-4 md:grid-cols-[240px_1fr_auto] md:items-end">
+    {% csrf_token %}
+    <div>
+      <label class="mb-1.5 block text-[11px] uppercase tracking-luxe text-slate-400">Collection</label>
+      {{ upload_form.category }}
+    </div>
+    <div>
+      <label class="mb-1.5 block text-[11px] uppercase tracking-luxe text-slate-400">Photographs</label>
+      {{ upload_form.images }}
+    </div>
+    <button type="submit" class="rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-white">Upload</button>
+  </form>
+</section>
+
+<section class="dash-card mt-6 p-6">
+  <form method="get" class="flex flex-wrap items-center gap-3">
+    <select name="category" data-autosubmit class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+      <option value="">All collections</option>
+      {% for category in categories %}
+        <option value="{{ category.slug }}" {% if current_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+      {% endfor %}
+    </select>
+    <input id="quick-filter" type="search" placeholder="Filter on this page..." class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+  </form>
+
+  <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+    {% for image in images %}
+      <figure data-filter-row class="group overflow-hidden rounded-lg border border-slate-200 bg-white transition hover:border-gold">
+        <div class="media-frame aspect-square">
+          <img src="{{ image.image.url }}" alt="{{ image.display_alt }}" loading="lazy">
+          {% if not image.is_active %}<span class="absolute left-2 top-2 z-10 rounded bg-slate-900/80 px-2 py-0.5 text-[10px] text-white">Hidden</span>{% endif %}
+          {% if image.is_featured %}<span class="absolute right-2 top-2 z-10 rounded bg-gold px-2 py-0.5 text-[10px] text-white">Featured</span>{% endif %}
+        </div>
+        <figcaption class="p-2.5">
+          <p class="truncate text-[11px] font-medium text-slate-700">{{ image.title|default:"Untitled" }}</p>
+          <p class="truncate text-[10px] text-slate-400">{{ image.category.name }}</p>
+          <div class="mt-2 flex gap-3 text-[10px]">
+            <a href="{% url 'dashboard:portfolio_image_update' image.pk %}" class="text-slate-500 hover:text-gold">Edit</a>
+            <a href="{% url 'dashboard:portfolio_image_delete' image.pk %}" class="text-rose-500 hover:text-rose-700">Delete</a>
+          </div>
+        </figcaption>
+      </figure>
+    {% empty %}
+      <p class="col-span-full py-14 text-center text-sm text-slate-400">No photographs in the portfolio yet.</p>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+    <div class="mt-8 flex items-center justify-between text-sm">
+      <span class="text-slate-500">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+      <div class="flex gap-2">
+        {% if page_obj.has_previous %}<a href="{% query_replace page=page_obj.previous_page_number %}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs">Previous</a>{% endif %}
+        {% if page_obj.has_next %}<a href="{% query_replace page=page_obj.next_page_number %}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs">Next</a>{% endif %}
+      </div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

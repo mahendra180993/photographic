@@ -1,0 +1,56 @@
+{% load static %}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050505">
+
+<title>{% block title %}{% if page_title %}{{ page_title }} &middot; {{ BRAND_NAME }}{% else %}{{ seo.meta_title|default:BRAND_NAME }}{% endif %}{% endblock %}</title>
+<meta name="description" content="{% block meta_description %}{{ meta_description|default:seo.meta_description }}{% endblock %}">
+{% if seo.meta_keywords %}<meta name="keywords" content="{{ seo.meta_keywords }}">{% endif %}
+{% if seo.google_site_verification %}<meta name="google-site-verification" content="{{ seo.google_site_verification }}">{% endif %}
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ BRAND_NAME }}">
+<meta property="og:title" content="{% if page_title %}{{ page_title }} &middot; {{ BRAND_NAME }}{% else %}{{ seo.meta_title|default:BRAND_NAME }}{% endif %}">
+<meta property="og:description" content="{{ meta_description|default:seo.meta_description }}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if seo.og_image %}<meta property="og:image" content="{{ seo.og_image.url }}">{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+{% if seo.twitter_handle %}<meta name="twitter:site" content="{{ seo.twitter_handle }}">{% endif %}
+
+{% if site.favicon %}<link rel="icon" href="{{ site.favicon.url }}">{% else %}<link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">{% endif %}
+
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=general-sans@300,400,500,600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery-bundle.min.css">
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: "#050505",
+          paper: "#F3EFE6",
+          gold: "{{ BRAND_GOLD|default:'#D4AF37' }}",
+          smoke: "#111111",
+          slateink: "#1A1A1A",
+          surface: "#111111",
+          champagne: "#F3EFE6",
+        },
+        fontFamily: {
+          display: ['"Clash Display"', "serif"],
+          sans: ['"General Sans"', "ui-sans-serif", "system-ui", "sans-serif"],
+        },
+        letterSpacing: { luxe: "0.28em" },
+        boxShadow: {
+          soft: "0 24px 60px -30px rgba(0,0,0,0.65)",
+          lift: "0 30px 80px -40px rgba(0,0,0,0.85)",
+          gold: "0 18px 50px -20px rgba(212,175,55,0.45)",
+        },
+      },
+    },
+  };
+</script>
+<link rel="stylesheet" href="{% static 'css/main.css' %}">

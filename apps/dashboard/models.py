@@ -1,0 +1,1 @@
+# The dashboard app is a presentation layer over the domain apps.

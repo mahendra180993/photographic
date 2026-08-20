@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Something went wrong{% endblock %}
+{% block content %}
+<section class="mx-auto flex min-h-[70vh] max-w-3xl flex-col items-center justify-center px-6 text-center">
+  <p class="text-[11px] uppercase tracking-luxe text-gold">Error 500</p>
+  <h1 class="mt-6 font-display text-6xl leading-none lg:text-8xl">Overexposed</h1>
+  <p class="mt-6 max-w-md text-ink/60">Our server stumbled. The studio has been notified - please try again shortly.</p>
+  <a href="/" class="btn-gold mt-10">Back to safety</a>
+</section>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl">
+  <div class="mb-6 flex flex-wrap gap-2">
+    <a href="{% url 'dashboard:settings_site' %}" class="rounded-lg border px-4 py-2 text-xs font-medium {% if page_title == 'Website settings' %}border-gold bg-gold text-white{% else %}border-slate-200 text-slate-600 hover:border-gold{% endif %}">Website</a>
+    <a href="{% url 'dashboard:settings_seo' %}" class="rounded-lg border px-4 py-2 text-xs font-medium {% if page_title == 'SEO settings' %}border-gold bg-gold text-white{% else %}border-slate-200 text-slate-600 hover:border-gold{% endif %}">SEO</a>
+    <a href="{% url 'dashboard:staff_list' %}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">Studio logins</a>
+    <a href="{% url 'dashboard:photographer_list' %}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">Photographers</a>
+    <a href="{% url 'dashboard:gallery_category_list' %}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">Gallery categories</a>
+    <a href="{% url 'dashboard:faq_list' %}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">FAQs</a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="dash-card p-6 lg:p-8" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="mb-6 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="form-grid grid gap-5 md:grid-cols-2">
+      {% for field in form %}
+        <div class="{% if field.field.widget.input_type == 'checkbox' %}flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/60 p-3{% endif %}">
+          {% if field.field.widget.input_type == 'checkbox' %}
+            <div class="pt-0.5">{{ field }}</div>
+            <div>
+              <label for="{{ field.id_for_label }}" class="!mb-0 cursor-pointer">{{ field.label }}</label>
+              {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+            </div>
+          {% else %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {% endif %}
+          {% if field.errors %}<ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="mt-8 border-t border-slate-100 pt-6">
+      <button type="submit" class="rounded-lg bg-gold px-5 py-2.5 text-sm font-medium text-white hover:brightness-95">Save settings</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

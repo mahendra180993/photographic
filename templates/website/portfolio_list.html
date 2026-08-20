@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="mx-auto max-w-[1400px] px-4 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-16 lg:px-12">
+  <p class="eyebrow" data-reveal>Archive</p>
+  <h1 class="mt-6 display-xl text-[clamp(2.4rem,9vw,8rem)]" data-reveal>Portfolio</h1>
+  <p class="mt-6 max-w-xl text-sm text-paper/55 sm:mt-8 sm:text-base" data-reveal>A selection of commissions and personal work, arranged by collection.</p>
+</section>
+
+<section class="mx-auto max-w-[1400px] px-4 pb-20 sm:px-6 sm:pb-24 lg:px-12">
+  <div class="grid gap-5 sm:gap-8 md:grid-cols-2" data-stagger>
+    {% for category in categories %}
+      <a href="{{ category.get_absolute_url }}" class="group block">
+        <div class="media-frame with-scrim aspect-[16/11]">
+          {% if category.preview_image %}
+            <img src="{{ category.preview_image.url }}" alt="{{ category.name }}" loading="lazy">
+          {% else %}
+            <img src="{% static 'img/placeholder.svg' %}" alt="{{ category.name }}" loading="lazy">
+          {% endif %}
+          <div class="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-4 p-7 text-paper">
+            <div>
+              <h2 class="font-display text-3xl">{{ category.name }}</h2>
+              {% if category.subtitle %}<p class="mt-1 text-sm text-paper/65">{{ category.subtitle }}</p>{% endif %}
+            </div>
+            <span class="shrink-0 text-[11px] uppercase tracking-luxe text-gold">{{ category.photo_count }} frames</span>
+          </div>
+        </div>
+      </a>
+    {% empty %}
+      <p class="text-paper/50">No collections published yet.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% if all_images %}
+<section class="bg-ink py-24 text-paper">
+  <div class="mx-auto max-w-[1400px] px-6 lg:px-12">
+    <p class="eyebrow" data-reveal>Everything, all at once</p>
+    <div id="lightgallery" class="mt-10 columns-2 gap-4 md:columns-3 lg:columns-4 [&>*]:mb-4" data-stagger>
+      {% for image in all_images %}
+        <a href="{{ image.image.url }}" data-lg data-sub-html="{{ image.display_alt }}" class="media-frame block break-inside-avoid">
+          <img src="{{ image.image.url }}" alt="{{ image.display_alt }}" loading="lazy">
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.addEventListener("load", function () {
+    var el = document.getElementById("lightgallery");
+    if (el && typeof lightGallery === "function") {
+      var plugins = [];
+      if (window.lgZoom) plugins.push(window.lgZoom);
+      if (window.lgThumbnail) plugins.push(window.lgThumbnail);
+      lightGallery(el, { selector: "a[data-lg]", plugins: plugins, speed: 400, download: false });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,183 @@
+LUMINA ATELIER — PROJECT WORKFLOW
+=================================
+Saved from project chat: workflow + flowcharts for client demos and team reference.
+
+
+================================================================================
+1. OVERALL SYSTEM
+================================================================================
+
+```mermaid
+flowchart TB
+  subgraph Users
+    V[Visitor]
+    C[Client]
+    S[Studio Staff / Admin]
+  end
+
+  subgraph Public["Public website /"]
+    H[Home / About / Portfolio]
+    SV[Services]
+    T[Testimonials]
+    CT[Contact form]
+  end
+
+  subgraph ClientArea["Client area /client/"]
+    CL[Login]
+    GL[My galleries]
+    GV[Gallery viewer]
+    SEL[Select photos]
+    DL[Download / ZIP]
+  end
+
+  subgraph Studio["Studio dashboard /studio/"]
+    D[Overview + metrics]
+    CUST[Customers]
+    GAL[Galleries + upload]
+    CMS[Portfolio / Services / CMS]
+    INB[Enquiries inbox]
+  end
+
+  subgraph Platform
+    DB[(Database)]
+    MEDIA[Media storage<br/>local or S3]
+    MAIL[Email + notifications]
+  end
+
+  V --> Public
+  C --> ClientArea
+  S --> Studio
+
+  Public --> DB
+  ClientArea --> DB
+  ClientArea --> MEDIA
+  Studio --> DB
+  Studio --> MEDIA
+  Studio --> MAIL
+  ClientArea --> MAIL
+  CT --> INB
+```
+
+
+================================================================================
+2. WHO GOES WHERE
+================================================================================
+
+```mermaid
+flowchart LR
+  A[User opens site] --> B{Logged in?}
+  B -->|No| P[Public pages]
+  B -->|Yes| R{Role?}
+  R -->|Client| CL[/client/]
+  R -->|Photographer / Admin| ST[/studio/]
+  P --> L[Login]
+  L --> R
+```
+
+| Role      | URL       | Can do                              |
+|-----------|-----------|-------------------------------------|
+| Visitor   | /         | Browse site, contact                |
+| Client    | /client/  | View galleries, select, download    |
+| Studio    | /studio/  | Manage everything                   |
+
+
+================================================================================
+3. GALLERY DELIVERY (MAIN BUSINESS FLOW)
+================================================================================
+
+```mermaid
+flowchart TD
+  A[Studio creates Customer] --> B[Create Gallery<br/>link client, set rules]
+  B --> C[Bulk upload photos]
+  C --> D[Set status Ready / Delivered]
+  D --> E[Email + in-app notify client]
+  E --> F[Client logs in]
+  F --> G{Visibility?}
+  G -->|private| H[Only linked client]
+  G -->|code| I[Share URL + access code]
+  G -->|public| J[Anyone with link]
+  H --> K[Open gallery]
+  I --> K
+  J --> K
+  K --> L{Expired?}
+  L -->|Yes| M[410 - request access]
+  L -->|No| N[View / select / download]
+  N --> O[Selections create AlbumRequest]
+  O --> P[Studio sees album request]
+```
+
+
+================================================================================
+4. CLIENT GALLERY SESSION
+================================================================================
+
+```mermaid
+flowchart TD
+  A[Client opens gallery] --> B{Access OK?}
+  B -->|No| C[Login / enter code / denied]
+  B -->|Yes| D[Gallery viewer + lightbox]
+  D --> E[Toggle photo selection]
+  E --> F{Under selection limit?}
+  F -->|No| G[Block extra selects]
+  F -->|Yes| H[Save selection]
+  H --> I[Submit album]
+  I --> J[Notify studio + client]
+  D --> K[Single download]
+  D --> L[ZIP download]
+  K --> M[Log DownloadHistory]
+  L --> M
+```
+
+
+================================================================================
+5. CONTACT → STUDIO INBOX
+================================================================================
+
+```mermaid
+flowchart LR
+  A[Visitor fills Contact] --> B[Honeypot + validate]
+  B --> C[Save ContactMessage]
+  C --> D[Studio Enquiries inbox]
+  D --> E[Studio replies offline / email]
+```
+
+
+================================================================================
+6. DEPLOY PATH (DEMO → PRODUCTION)
+================================================================================
+
+```mermaid
+flowchart LR
+  DEV[Local / Docker] --> DEMO[Render free<br/>client demo]
+  DEMO --> PROD[EC2 production]
+```
+
+
+================================================================================
+SHORT STORY FOR CLIENTS
+================================================================================
+
+1. Studio creates a customer and gallery, uploads photos, marks it ready.
+2. Client gets notified, logs in (or uses share code), views and selects photos.
+3. Studio gets album requests and enquiries in the dashboard.
+4. Public site markets the studio (portfolio, services, contact).
+
+
+================================================================================
+HOSTING NOTES (FROM CHAT)
+================================================================================
+
+Demo hosting:
+- Render free tier works well for client demos (Django + Postgres).
+- Netlify alone does NOT run full Django — use Render (or EC2) for the app.
+- Free Render may sleep after ~15 min idle (first load ~30–60 seconds).
+- Free Postgres on Render expires after 30 days — OK for short demos.
+- Gallery uploads on demo: use S3 (USE_S3=True) — no persistent disk on free Render.
+
+Production path:
+- Same codebase can move from Render demo → EC2 without rewrite.
+
+Demo logins (after seed_demo):
+- Studio admin: admin / admin123  → /studio/
+- Photographer:  elise / studio123 → /studio/
+- Client:        client / client123 → /client/

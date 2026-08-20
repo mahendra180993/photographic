@@ -1,0 +1,214 @@
+{% extends "dashboard/base.html" %}
+{% load static ui humanize %}
+
+{% block header_actions %}
+  <a href="{% url 'dashboard:gallery_update' gallery.pk %}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">Edit</a>
+  <a href="{{ client_url }}" target="_blank" rel="noopener" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">Preview</a>
+{% endblock %}
+
+{% block content %}
+
+{# ------------------------------------------------------------ summary #}
+<section class="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+  <div class="dash-card p-6">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <h2 class="font-display text-2xl">{{ gallery.title }}</h2>
+          {% status_pill gallery.status %}
+        </div>
+        <p class="mt-2 text-sm text-slate-500">
+          <a href="{% url 'dashboard:customer_detail' gallery.customer.pk %}" class="hover:text-gold">{{ gallery.customer.full_name }}</a>
+          {% if gallery.photographer %} &middot; {{ gallery.photographer.display_name }}{% endif %}
+          {% if gallery.event_date %} &middot; {{ gallery.event_date|date:"j F Y" }}{% endif %}
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <form method="post" action="{% url 'dashboard:gallery_notify' gallery.pk %}" data-confirm="Send the delivery notification to {{ gallery.customer.email }}?">
+          {% csrf_token %}
+          <button type="submit" class="rounded-lg bg-gold px-4 py-2 text-xs font-medium text-white">Notify client</button>
+        </form>
+        <a href="{% url 'dashboard:gallery_delete' gallery.pk %}" class="rounded-lg border border-rose-200 px-4 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50">Delete</a>
+      </div>
+    </div>
+
+    <dl class="mt-6 grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-4">
+      <div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Photographs</dt><dd class="mt-1 font-display text-2xl">{{ images|length }}</dd></div>
+      <div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Selected</dt><dd class="mt-1 font-display text-2xl text-gold">{{ gallery.selected_count }}</dd></div>
+      <div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Views</dt><dd class="mt-1 font-display text-2xl">{{ gallery.view_count }}</dd></div>
+      <div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Downloads</dt><dd class="mt-1 font-display text-2xl">{{ gallery.download_count }}</dd></div>
+    </dl>
+
+    <div class="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-5 text-[11px]">
+      <span class="rounded-full border border-slate-200 px-3 py-1">{{ gallery.get_visibility_display }}</span>
+      <span class="rounded-full border border-slate-200 px-3 py-1">{% if gallery.allow_downloads %}Downloads on{% else %}Downloads off{% endif %}</span>
+      <span class="rounded-full border border-slate-200 px-3 py-1">{% if gallery.allow_selection %}Selection on{% else %}Selection off{% endif %}</span>
+      <span class="rounded-full border border-slate-200 px-3 py-1">{% if gallery.watermark_enabled %}Watermarked{% else %}No watermark{% endif %}</span>
+      <span class="rounded-full border border-slate-200 px-3 py-1">
+        {% if gallery.expires_at %}Expires {{ gallery.expires_at|date:"j M Y" }}{% else %}No expiry{% endif %}
+      </span>
+      {% if gallery.selection_limit %}<span class="rounded-full border border-slate-200 px-3 py-1">Limit {{ gallery.selection_limit }}</span>{% endif %}
+      <span class="rounded-full border border-slate-200 px-3 py-1">{{ gallery.total_size|filesize }}</span>
+    </div>
+  </div>
+
+  {# ------------------------------------------------------------ sharing #}
+  <div class="dash-card p-6">
+    <h3 class="font-display text-lg">Sharing</h3>
+
+    <div class="mt-4 space-y-4 text-sm">
+      <div>
+        <p class="text-[10px] uppercase tracking-luxe text-slate-400">Client link</p>
+        <div class="mt-1.5 flex items-center gap-2">
+          <input readonly value="{{ client_url }}" class="w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+          <button type="button" data-copy="{{ client_url }}" class="shrink-0 rounded-lg border border-slate-200 px-3 py-2 text-xs hover:border-gold">Copy</button>
+        </div>
+      </div>
+
+      {% if gallery.visibility != 'private' %}
+        <div>
+          <p class="text-[10px] uppercase tracking-luxe text-slate-400">Shareable link</p>
+          <div class="mt-1.5 flex items-center gap-2">
+            <input readonly value="{{ share_url }}" class="w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+            <button type="button" data-copy="{{ share_url }}" class="shrink-0 rounded-lg border border-slate-200 px-3 py-2 text-xs hover:border-gold">Copy</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-[10px] uppercase tracking-luxe text-slate-400">Access code</p>
+          <div class="mt-1.5 flex items-center gap-2">
+            <span class="flex-1 rounded-lg border border-gold/40 bg-amber-50 px-3 py-2 font-display tracking-[0.3em] text-gold">{{ gallery.access_code|default:"-" }}</span>
+            <form method="post" action="{% url 'dashboard:gallery_rotate_code' gallery.pk %}" data-confirm="Generate a new access code? The old one stops working.">
+              {% csrf_token %}
+              <button type="submit" class="rounded-lg border border-slate-200 px-3 py-2 text-xs hover:border-gold">Rotate</button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <p class="rounded-lg bg-slate-50 p-3 text-xs text-slate-500">
+          This gallery is private - only the linked client login can open it.
+          Switch visibility to <em>shareable link</em> to generate an access code.
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{# ------------------------------------------------------------- upload #}
+<section class="dash-card mt-6 p-6">
+  <h3 class="font-display text-lg">Upload photographs</h3>
+  <form id="gallery-upload-form" method="post" action="{% url 'dashboard:gallery_upload' gallery.pk %}" enctype="multipart/form-data" class="mt-4">
+    {% csrf_token %}
+    <div id="dropzone" class="cursor-pointer rounded-xl border-2 border-dashed border-slate-200 px-6 py-12 text-center transition hover:border-gold">
+      <p class="font-display text-lg text-slate-700">Drop images here</p>
+      <p class="mt-1 text-xs text-slate-400">or click to browse - JPEG, PNG or WEBP, multiple files at once</p>
+      <input id="gallery-upload-input" type="file" name="images" multiple accept="image/*" class="hidden">
+      <p id="upload-info" class="mt-4 text-xs font-medium text-gold"></p>
+    </div>
+    <div id="upload-progress" class="mt-4 hidden">
+      <div class="h-1 w-full overflow-hidden rounded-full bg-slate-100">
+        <div class="h-full w-1/3 animate-pulse rounded-full bg-gold"></div>
+      </div>
+      <p class="mt-2 text-xs text-slate-400">Uploading - please keep this tab open.</p>
+    </div>
+    <div class="mt-4 flex items-center gap-3">
+      <button type="submit" class="rounded-lg bg-gold px-5 py-2.5 text-sm font-medium text-white">Upload</button>
+      <span class="text-xs text-slate-400">Files are stored under media/galleries/{{ gallery.uuid }}/</span>
+    </div>
+  </form>
+</section>
+
+{# --------------------------------------------------------- image grid #}
+<section class="dash-card mt-6 p-6">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h3 class="font-display text-lg">Photographs ({{ images|length }})</h3>
+    <p class="text-xs text-slate-400">Drag to reorder - changes save automatically</p>
+  </div>
+
+  <div id="image-grid" data-reorder-url="{% url 'dashboard:gallery_image_reorder' %}"
+       class="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+    {% for image in images %}
+      <figure draggable="true" data-image-id="{{ image.pk }}"
+              class="group relative overflow-hidden rounded-lg border border-slate-200 bg-white transition hover:border-gold">
+        <div class="media-frame aspect-square">
+          <img src="{{ image.image.url }}" alt="{{ image.display_alt }}" loading="lazy">
+          {% if image.is_hidden %}<span class="absolute left-2 top-2 z-10 rounded bg-slate-900/80 px-2 py-0.5 text-[10px] text-white">Hidden</span>{% endif %}
+          {% if image.is_cover %}<span class="absolute right-2 top-2 z-10 rounded bg-gold px-2 py-0.5 text-[10px] text-white">Cover</span>{% endif %}
+        </div>
+        <figcaption class="p-2">
+          <p class="truncate text-[11px] text-slate-500">{{ image.display_title }}</p>
+          <p class="text-[10px] text-slate-400">{{ image.width }}x{{ image.height }} &middot; {{ image.file_size|filesize }}</p>
+          <div class="mt-2 flex flex-wrap gap-1">
+            <form method="post" action="{% url 'dashboard:gallery_image_cover' image.pk %}">
+              {% csrf_token %}
+              <button class="rounded border border-slate-200 px-1.5 py-0.5 text-[10px] hover:border-gold">Cover</button>
+            </form>
+            <form method="post" action="{% url 'dashboard:gallery_image_toggle' image.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="flag" value="is_hidden">
+              <button class="rounded border border-slate-200 px-1.5 py-0.5 text-[10px] hover:border-gold">{% if image.is_hidden %}Show{% else %}Hide{% endif %}</button>
+            </form>
+            <form method="post" action="{% url 'dashboard:gallery_image_delete' image.pk %}" data-confirm="Delete this photograph permanently?">
+              {% csrf_token %}
+              <button class="rounded border border-rose-200 px-1.5 py-0.5 text-[10px] text-rose-600 hover:bg-rose-50">Del</button>
+            </form>
+          </div>
+        </figcaption>
+      </figure>
+    {% empty %}
+      <p class="col-span-full py-10 text-center text-sm text-slate-400">No photographs uploaded yet.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{# -------------------------------------------------- selections & logs #}
+<div class="mt-6 grid gap-6 xl:grid-cols-2">
+  <section class="dash-card p-6">
+    <h3 class="font-display text-lg">Client selections ({{ gallery.selected_count }})</h3>
+    {% if selections %}
+      <div class="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-6">
+        {% for pick in selections %}
+          <div class="media-frame aspect-square rounded" title="{{ pick.image.display_title }}">
+            <img src="{{ pick.image.image.url }}" alt="{{ pick.image.display_alt }}" loading="lazy">
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="mt-4 text-sm text-slate-400">The client has not selected any photographs yet.</p>
+    {% endif %}
+
+    {% if album_requests %}
+      <div class="mt-6 border-t border-slate-100 pt-4">
+        <p class="text-[10px] uppercase tracking-luxe text-slate-400">Album requests</p>
+        <ul class="mt-3 space-y-2 text-sm">
+          {% for request in album_requests %}
+            <li class="flex items-center justify-between gap-3">
+              <a href="{% url 'dashboard:album_detail' request.pk %}" class="hover:text-gold">{{ request.title|default:"Album request" }}</a>
+              {% status_pill request.status %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="dash-card p-6">
+    <h3 class="font-display text-lg">Access &amp; downloads</h3>
+    <ul class="mt-4 space-y-3 text-sm">
+      {% for log in access_logs %}
+        <li class="flex items-start justify-between gap-3 border-b border-slate-50 pb-3 last:border-0">
+          <div>
+            <p class="text-slate-700">{{ log.get_action_display }}</p>
+            <p class="text-[11px] text-slate-400">
+              {{ log.user.get_display_name|default:"Guest" }}{% if log.ip_address %} &middot; {{ log.ip_address }}{% endif %}
+            </p>
+          </div>
+          <time class="shrink-0 text-[11px] text-slate-400">{{ log.created_at|naturaltime }}</time>
+        </li>
+      {% empty %}
+        <li class="text-slate-400">No activity recorded on this gallery yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

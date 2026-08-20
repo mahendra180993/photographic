@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  {% include "partials/head.html" %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-ink font-sans text-paper antialiased selection:bg-gold/30 {% block body_class %}{% endblock %}"
+      data-header-theme="{% block header_theme %}dark{% endblock %}">
+  <div id="page-veil" class="pointer-events-none fixed inset-0 z-[100] bg-ink"></div>
+  <div id="scroll-progress" class="pointer-events-none fixed left-0 top-0 z-[70] h-[2px] w-0 bg-gold" aria-hidden="true"></div>
+
+  {% include "partials/nav.html" %}
+  {% include "partials/messages.html" %}
+
+  <main id="main" class="{% block main_class %}pt-[4.75rem] sm:pt-24{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block footer %}{% include "partials/footer.html" %}{% endblock %}
+
+  {% include "partials/scripts.html" %}
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

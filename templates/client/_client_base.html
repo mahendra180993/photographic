@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  {% include "partials/head.html" %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-ink font-sans text-paper antialiased selection:bg-gold/30" data-lenis="off">
+  {% include "partials/messages.html" %}
+
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-ink/90 backdrop-blur">
+    <div class="mx-auto flex max-w-[1500px] items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
+      <a href="{% url 'client:index' %}" class="flex min-w-0 items-center gap-2.5 sm:gap-3">
+        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-gold/60 font-display text-xs text-gold">LA</span>
+        <span class="truncate font-display text-base">{{ BRAND_NAME }}</span>
+        <span class="hidden text-[10px] uppercase tracking-luxe text-paper/35 md:inline">Client area</span>
+      </a>
+
+      <nav class="client-nav-scroll text-[10px] uppercase tracking-luxe sm:text-[11px]" aria-label="Client">
+        <a href="{% url 'client:index' %}" class="shrink-0 rounded-full px-2.5 py-2 text-paper/60 transition hover:text-gold sm:px-3">Galleries</a>
+        <a href="{% url 'client:notifications' %}" class="relative shrink-0 rounded-full px-2.5 py-2 text-paper/60 transition hover:text-gold sm:px-3">
+          Alerts
+          {% if unread_notifications %}<span class="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-gold"></span>{% endif %}
+        </a>
+        <a href="{% url 'client:help' %}" class="shrink-0 rounded-full px-2.5 py-2 text-paper/60 transition hover:text-gold sm:px-3">Help</a>
+        <a href="{% url 'accounts:profile' %}" class="shrink-0 rounded-full px-2.5 py-2 text-paper/60 transition hover:text-gold sm:px-3">Profile</a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="ml-1 shrink-0">
+          {% csrf_token %}
+          <button type="submit" class="rounded-full border border-white/20 px-3 py-2 text-paper/70 transition hover:border-gold hover:text-gold sm:px-4">Sign out</button>
+        </form>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 sm:py-10 lg:px-10">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="border-t border-white/10 px-4 py-10 text-center text-xs text-paper/35">
+    <p>&copy; {% now "Y" %} {{ BRAND_NAME }} &middot; {{ site.contact_email }}</p>
+  </footer>
+
+  {% include "partials/scripts.html" %}
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

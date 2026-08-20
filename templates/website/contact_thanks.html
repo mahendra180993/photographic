@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="mx-auto flex min-h-[70vh] max-w-3xl flex-col items-center justify-center px-6 text-center">
+  <p class="eyebrow" data-reveal>Received</p>
+  <h1 class="mt-6 display-xl text-[clamp(2.4rem,8vw,6rem)]" data-reveal>Thank you</h1>
+  <p class="mt-6 max-w-md text-paper/60" data-reveal>Your enquiry is with the studio. We reply to every message within two working days - often sooner.</p>
+  <div class="mt-10 flex flex-wrap justify-center gap-4" data-reveal>
+    <a href="{% url 'website:portfolio' %}" class="btn-gold">Browse the portfolio</a>
+    <a href="{% url 'website:home' %}" class="btn-outline">Back home</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,1 @@
+# The core app holds cross-cutting infrastructure only (no database models).

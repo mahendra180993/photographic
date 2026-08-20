@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="mx-auto max-w-[1400px] px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-16 lg:px-12">
+  <p class="eyebrow" data-reveal>{{ site.tagline }}</p>
+  <h1 class="mt-6 display-xl text-[clamp(2.4rem,8vw,7rem)]" data-reveal>{{ site.about_title|default:"The atelier" }}</h1>
+
+  <div class="mt-12 grid gap-10 sm:mt-16 sm:gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
+    <div class="media-frame aspect-[4/5] rounded-sm" data-reveal>
+      {% if site.about_image %}
+        <img src="{{ site.about_image.url }}" alt="{{ site.site_name }} studio">
+      {% else %}
+        <img src="{% static 'img/placeholder.svg' %}" alt="Studio">
+      {% endif %}
+    </div>
+    <div class="space-y-6 lg:pt-10" data-reveal data-reveal-delay="0.1">
+      <p class="text-xl leading-relaxed text-paper/75">{{ site.about_intro|default:"A boutique studio built around patience, natural light and a deep respect for the people in front of the lens." }}</p>
+      <p class="leading-relaxed text-paper/55">{{ site.about_body|default:"We accept a limited number of commissions each year so that every project receives the attention it deserves. Our process begins with a conversation, continues with careful planning, and ends with a hand-finished delivery in your private client gallery." }}</p>
+      <div class="rule my-8"></div>
+      <dl class="grid grid-cols-2 gap-6 text-sm">
+        <div><dt class="text-[11px] uppercase tracking-luxe text-paper/40">Based in</dt><dd class="mt-1">{{ site.city }}, {{ site.country }}</dd></div>
+        <div><dt class="text-[11px] uppercase tracking-luxe text-paper/40">Travels</dt><dd class="mt-1">Worldwide</dd></div>
+        <div><dt class="text-[11px] uppercase tracking-luxe text-paper/40">Studio hours</dt><dd class="mt-1">{{ site.opening_hours }}</dd></div>
+        <div><dt class="text-[11px] uppercase tracking-luxe text-paper/40">Enquiries</dt><dd class="mt-1">{{ site.contact_email }}</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+{% if team %}
+<section class="bg-ink py-28 text-paper">
+  <div class="mx-auto max-w-[1400px] px-6 lg:px-12">
+    <p class="eyebrow" data-reveal>The people</p>
+    <h2 class="mt-5 font-display text-4xl lg:text-6xl" data-reveal>Behind the lens</h2>
+
+    <div class="mt-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-4" data-stagger>
+      {% for member in team %}
+        <article class="group">
+          <div class="media-frame aspect-[3/4]">
+            {% if member.photo %}
+              <img src="{{ member.photo.url }}" alt="{{ member.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'img/placeholder.svg' %}" alt="{{ member.name }}" loading="lazy">
+            {% endif %}
+          </div>
+          <h3 class="mt-5 font-display text-xl">{{ member.name }}</h3>
+          <p class="mt-1 text-[11px] uppercase tracking-luxe text-gold">{{ member.role }}</p>
+          {% if member.bio %}<p class="mt-3 text-sm leading-relaxed text-paper/55">{{ member.bio|truncatewords:26 }}</p>{% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if faqs %}
+<section class="mx-auto max-w-[900px] px-6 py-28 lg:px-12">
+  <p class="eyebrow" data-reveal>Good to know</p>
+  <h2 class="mt-5 font-display text-4xl lg:text-5xl" data-reveal>Frequently asked</h2>
+
+  <div class="mt-12 divide-y divide-gold/15 border-y border-gold/15" data-accordion>
+    {% for faq in faqs %}
+      <div data-accordion-item class="py-5">
+        <button type="button" data-accordion-trigger class="flex w-full items-center justify-between gap-6 text-left">
+          <span class="font-display text-lg lg:text-xl">{{ faq.question }}</span>
+          <span class="text-gold">+</span>
+        </button>
+        <div data-accordion-panel class="max-h-0 overflow-hidden transition-all duration-500">
+          <p class="pt-4 text-sm leading-relaxed text-paper/60">{{ faq.answer|linebreaksbr }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="relative overflow-hidden bg-slateink py-24">
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(212,175,55,0.12),transparent_55%)]"></div>
+  <div class="relative mx-auto max-w-3xl px-6 text-center" data-reveal>
+    <h2 class="font-display text-3xl lg:text-5xl">Let us tell your story.</h2>
+    <a href="{% url 'website:contact' %}" class="btn-gold mt-8">Start an enquiry</a>
+  </div>
+</section>
+{% endblock %}

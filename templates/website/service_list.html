@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="mx-auto max-w-[1400px] px-6 pb-16 pt-16 lg:px-12">
+  <p class="eyebrow" data-reveal>Commissions</p>
+  <h1 class="mt-6 display-xl text-[clamp(2.6rem,9vw,8rem)]" data-reveal>Services</h1>
+  <p class="mt-8 max-w-xl text-paper/55" data-reveal>Considered packages for weddings, editorial, brands and fine-art commissions. Every project is tailored after our first conversation.</p>
+</section>
+
+<section class="mx-auto max-w-[1400px] px-6 pb-24 lg:px-12">
+  <div class="grid gap-8 lg:grid-cols-2" data-stagger>
+    {% for service in services %}
+      <article class="group flex flex-col overflow-hidden rounded-sm border border-gold/15 bg-surface transition hover:border-gold/40">
+        <div class="media-frame aspect-[16/9]">
+          {% if service.image %}
+            <img src="{{ service.image.url }}" alt="{{ service.title }}" loading="lazy">
+          {% else %}
+            <img src="{% static 'img/placeholder.svg' %}" alt="{{ service.title }}" loading="lazy">
+          {% endif %}
+        </div>
+        <div class="flex flex-1 flex-col p-8">
+          <div class="flex items-start justify-between gap-6">
+            <h2 class="font-display text-3xl">{{ service.title }}</h2>
+            <span class="shrink-0 rounded-full border border-gold/40 px-3 py-1 text-[10px] uppercase tracking-luxe text-gold">{{ service.price_display }}</span>
+          </div>
+          {% if service.tagline %}<p class="mt-3 text-sm text-gold">{{ service.tagline }}</p>{% endif %}
+          <p class="mt-4 text-sm leading-relaxed text-paper/60">{{ service.short_description }}</p>
+
+          {% if service.feature_list %}
+            <ul class="mt-6 space-y-2 text-sm text-paper/70">
+              {% for feature in service.feature_list|slice:":5" %}
+                <li class="flex gap-3"><span class="mt-2 h-1 w-1 shrink-0 rounded-full bg-gold"></span>{{ feature }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          <div class="mt-auto flex items-center gap-4 pt-8">
+            <a href="{{ service.get_absolute_url }}" class="btn-gold">{{ service.cta_label|default:"Details" }}</a>
+            <a href="{% url 'website:contact' %}?ref={{ service.slug }}" class="text-[11px] uppercase tracking-luxe text-paper/50 hover:text-gold">Enquire &rarr;</a>
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <p class="text-paper/50">Packages are being prepared.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% if faqs %}
+<section class="bg-ink py-24 text-paper">
+  <div class="mx-auto max-w-[900px] px-6 lg:px-12">
+    <p class="eyebrow" data-reveal>Practicalities</p>
+    <div class="mt-10 divide-y divide-white/10 border-y border-white/10" data-accordion>
+      {% for faq in faqs %}
+        <div data-accordion-item class="py-5">
+          <button type="button" data-accordion-trigger class="flex w-full items-center justify-between gap-6 text-left">
+            <span class="font-display text-lg">{{ faq.question }}</span>
+            <span class="text-gold">+</span>
+          </button>
+          <div data-accordion-panel class="max-h-0 overflow-hidden transition-all duration-500">
+            <p class="pt-4 text-sm leading-relaxed text-paper/60">{{ faq.answer|linebreaksbr }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

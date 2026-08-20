@@ -1,0 +1,17 @@
+{% extends "client/_client_base.html" %}
+
+{% block content %}
+<section class="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center text-center">
+  <p class="eyebrow">Archive closed</p>
+  <h1 class="mt-4 font-display text-4xl lg:text-5xl">This gallery has expired</h1>
+  <p class="mt-5 text-sm leading-relaxed text-paper/55">
+    &ldquo;{{ gallery.title }}&rdquo; was available until
+    {{ gallery.expires_at|date:"j F Y" }}. We keep every archive safely stored - contact the studio and we
+    will happily reopen it for you.
+  </p>
+  <div class="mt-10 flex flex-wrap justify-center gap-4">
+    <a href="mailto:{{ site.contact_email }}?subject=Reopen%20gallery:%20{{ gallery.title|urlencode }}" class="btn-gold">Request access</a>
+    <a href="{% url 'client:index' %}" class="btn-ghost text-paper">Back to my galleries</a>
+  </div>
+</section>
+{% endblock %}

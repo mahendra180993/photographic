@@ -1,0 +1,46 @@
+{% extends "client/_client_base.html" %}
+{% load humanize %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="eyebrow">Updates</p>
+      <h1 class="mt-3 font-display text-4xl">Notifications</h1>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn-ghost text-paper">Mark all read</button>
+    </form>
+  </div>
+
+  <div class="mt-10 space-y-3">
+    {% for note in notifications %}
+      <article class="rounded-xl border p-5 transition {% if note.is_read %}border-white/10 bg-white/[0.02]{% else %}border-gold/35 bg-gold/[0.06]{% endif %}">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="font-display text-lg">{{ note.title }}</h2>
+            <p class="mt-1.5 text-sm leading-relaxed text-paper/60">{{ note.message }}</p>
+            {% if note.url %}
+              <a href="{{ note.url }}" class="mt-3 inline-block text-[11px] uppercase tracking-luxe text-gold hover:underline">Open &rarr;</a>
+            {% endif %}
+          </div>
+          <time class="shrink-0 text-[11px] uppercase tracking-luxe text-paper/35">{{ note.created_at|naturaltime }}</time>
+        </div>
+      </article>
+    {% empty %}
+      <p class="rounded-xl border border-dashed border-white/15 p-14 text-center text-paper/45">
+        No notifications yet.
+      </p>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+    <nav class="mt-10 flex justify-center gap-2 text-sm">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="btn-ghost text-paper">Previous</a>{% endif %}
+      <span class="px-4 py-2 text-paper/45">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="btn-ghost text-paper">Next</a>{% endif %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl px-6 py-16">
+  <p class="eyebrow">Account</p>
+  <h1 class="mt-4 font-display text-4xl">Your profile</h1>
+
+  <div class="mt-10 rounded-xl border border-gold/15 bg-surface p-8">
+    <form method="post" enctype="multipart/form-data" class="site-form space-y-6" novalidate>
+      {% csrf_token %}
+      <div class="grid gap-6 sm:grid-cols-2">
+        {% include "partials/field.html" with field=form.first_name %}
+        {% include "partials/field.html" with field=form.last_name %}
+        {% include "partials/field.html" with field=form.email %}
+        {% include "partials/field.html" with field=form.phone %}
+        {% include "partials/field.html" with field=form.timezone_name %}
+        {% include "partials/field.html" with field=form.avatar %}
+      </div>
+      <div class="flex flex-wrap items-center gap-4 border-t border-white/10 pt-6">
+        <button type="submit" class="btn-gold">Save changes</button>
+        <a href="{% url 'accounts:password_change' %}" class="btn-outline">Change password</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="mt-8 rounded-xl border border-gold/15 bg-surface p-8 text-sm text-paper/60">
+    <p><span class="text-paper/40">Username:</span> {{ user.username }}</p>
+    <p class="mt-2"><span class="text-paper/40">Role:</span> {{ user.role_label }}</p>
+    <p class="mt-2"><span class="text-paper/40">Signed in:</span> {{ user.login_count }} time(s)</p>
+    <form method="post" action="{% url 'accounts:logout' %}" class="mt-6">
+      {% csrf_token %}
+      <button type="submit" class="btn-outline">Sign out</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

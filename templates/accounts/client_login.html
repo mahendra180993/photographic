@@ -1,0 +1,40 @@
+{% extends "accounts/_auth_base.html" %}
+
+{% block auth_content %}
+  <p class="eyebrow">Client area</p>
+  <h1 class="mt-4 font-display text-4xl">Welcome back</h1>
+  <p class="mt-3 text-sm text-paper/55">Sign in with the email or username the studio sent you.</p>
+
+  <form method="post" class="site-form mt-10 space-y-5" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    {% include "partials/field.html" with field=form.username %}
+    {% include "partials/field.html" with field=form.password %}
+
+    <div class="flex items-center justify-between gap-4 pt-1">
+      <label class="flex items-center gap-2 text-xs text-paper/60">
+        {{ form.remember_me }} <span>{{ form.remember_me.label }}</span>
+      </label>
+      <a href="{% url 'accounts:password_reset' %}" class="text-xs text-paper/50 hover:text-gold">Forgot password?</a>
+    </div>
+
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn-gold mt-2 w-full">Enter my gallery</button>
+  </form>
+
+  <div class="mt-10 rounded-xl border border-gold/15 bg-slateink p-5 text-xs text-paper/55">
+    <p class="font-medium text-paper/70">No account yet?</p>
+    <p class="mt-1">Client logins are created by the studio when your gallery is ready.
+      <a href="{% url 'website:contact' %}" class="text-gold hover:underline">Contact us</a> if you need access.</p>
+  </div>
+
+  <p class="mt-8 text-center text-[11px] uppercase tracking-luxe text-paper/30">
+    <a href="{% url 'accounts:admin_login' %}" class="hover:text-gold">Studio login</a>
+  </p>
+{% endblock %}

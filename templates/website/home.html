@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header_theme %}dark{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js" defer></script>
+{% endblock %}
+
+{% block content %}
+
+{# ---------------------------------------------------------------- HERO #}
+<section class="relative grain flex min-h-screen items-end overflow-hidden bg-ink text-paper">
+  <canvas id="hero-canvas" class="absolute inset-0 h-full w-full opacity-70"></canvas>
+
+  {% if site.hero_image %}
+    <img src="{{ site.hero_image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover opacity-45" data-parallax="8">
+  {% else %}
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(200,169,81,0.18),transparent_55%),radial-gradient(circle_at_80%_70%,rgba(255,255,255,0.08),transparent_50%)]"></div>
+  {% endif %}
+  <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/20"></div>
+
+  <div class="relative z-10 mx-auto w-full max-w-[1400px] px-6 pb-24 pt-40 lg:px-12">
+    <p class="eyebrow" data-hero-fade>{{ site.hero_eyebrow|default:"Fine art photography studio" }}</p>
+
+    <h1 class="mt-8 display-xl text-[clamp(3rem,11vw,10rem)]" data-hero-title>
+      <span class="split-line"><span>{{ site.hero_title|default:"Light, held still." }}</span></span>
+    </h1>
+
+    <div class="mt-12 flex flex-col gap-10 border-t border-white/10 pt-10 lg:flex-row lg:items-end lg:justify-between">
+      <p class="max-w-md text-base leading-relaxed text-paper/70" data-hero-fade>
+        {{ site.hero_subtitle }}
+      </p>
+      <div class="flex flex-wrap items-center gap-4" data-hero-fade>
+        <a href="{% url 'website:portfolio' %}" class="btn-gold">{{ site.hero_cta_label|default:"View the portfolio" }}</a>
+        <a href="{% url 'website:contact' %}" class="btn-ghost">Enquire about a date</a>
+      </div>
+    </div>
+
+    <div class="mt-16 flex items-center gap-4 text-[11px] uppercase tracking-luxe text-paper/40" data-hero-fade>
+      <span class="h-10 w-px bg-gradient-to-b from-gold to-transparent"></span>
+      Scroll to explore
+    </div>
+  </div>
+</section>
+
+{# ------------------------------------------------------------- MARQUEE #}
+<section class="overflow-hidden border-y border-gold/20 bg-surface py-6">
+  <div class="marquee text-[11px] uppercase tracking-luxe text-paper/45">
+    {% for i in "12" %}
+      <span>Weddings</span><span class="text-gold">&bull;</span>
+      <span>Editorial</span><span class="text-gold">&bull;</span>
+      <span>Fine art portraiture</span><span class="text-gold">&bull;</span>
+      <span>Brand campaigns</span><span class="text-gold">&bull;</span>
+      <span>Destination</span><span class="text-gold">&bull;</span>
+      <span>Archival prints</span><span class="text-gold">&bull;</span>
+    {% endfor %}
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- INTRO #}
+<section class="luxe-section mx-auto max-w-[1400px] px-6 py-28 lg:px-12">
+  <div class="grid gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
+    <div data-reveal>
+      <p class="eyebrow">The atelier</p>
+      <h2 class="mt-6 font-display text-4xl leading-tight text-paper lg:text-6xl">
+        {{ site.about_title|default:"We photograph the quiet moments between the big ones." }}
+      </h2>
+    </div>
+    <div class="space-y-8" data-reveal data-reveal-delay="0.1">
+      <p class="text-lg leading-relaxed text-paper/70">
+        {{ site.about_intro|default:"Founded on the belief that a photograph should feel like a memory rather than a record, our studio works with a small number of clients each year." }}
+      </p>
+      <p class="leading-relaxed text-paper/50">
+        {{ site.about_body|default:"From the first conversation to the final archival print, every frame is treated with the patience of a craft practice. We travel worldwide, shoot on both film and digital, and deliver through a private, beautifully considered client gallery." }}
+      </p>
+
+      <div class="grid grid-cols-2 gap-8 border-t border-gold/20 pt-10 sm:grid-cols-4">
+        <div>
+          <p class="font-display text-4xl text-gold"><span data-count="{{ site.years_experience|default:12 }}">0</span></p>
+          <p class="mt-2 text-[11px] uppercase tracking-luxe text-paper/40">Years</p>
+        </div>
+        <div>
+          <p class="font-display text-4xl text-gold"><span data-count="{{ site.projects_delivered|default:480 }}">0</span></p>
+          <p class="mt-2 text-[11px] uppercase tracking-luxe text-paper/40">Stories</p>
+        </div>
+        <div>
+          <p class="font-display text-4xl text-gold"><span data-count="{{ site.countries_count|default:23 }}">0</span></p>
+          <p class="mt-2 text-[11px] uppercase tracking-luxe text-paper/40">Countries</p>
+        </div>
+        <div>
+          <p class="font-display text-4xl text-gold"><span data-count="{{ site.awards_count|default:17 }}">0</span></p>
+          <p class="mt-2 text-[11px] uppercase tracking-luxe text-paper/40">Awards</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ------------------------------------------------------------ SELECTED #}
+<section class="relative overflow-hidden bg-surface py-28 text-paper">
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.07),transparent_55%)]"></div>
+  <div class="relative mx-auto max-w-[1400px] px-6 lg:px-12">
+    <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+      <div>
+        <p class="eyebrow">Selected work</p>
+        <h2 class="mt-5 font-display text-4xl lg:text-6xl">Collections</h2>
+      </div>
+      <a href="{% url 'website:portfolio' %}" class="btn-ghost">All work</a>
+    </div>
+
+    <div class="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-stagger>
+      {% for category in featured_categories %}
+        <a href="{{ category.get_absolute_url }}" class="group block">
+          <div class="media-frame with-scrim aspect-[4/5]">
+            {% if category.preview_image %}
+              <img src="{{ category.preview_image.url }}" alt="{{ category.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'img/placeholder.svg' %}" alt="{{ category.name }}" loading="lazy">
+            {% endif %}
+            <div class="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between p-6">
+              <div>
+                <h3 class="font-display text-2xl">{{ category.name }}</h3>
+                {% if category.subtitle %}<p class="mt-1 text-xs text-paper/60">{{ category.subtitle }}</p>{% endif %}
+              </div>
+              <span class="text-[11px] uppercase tracking-luxe text-gold">{{ category.photo_count }}</span>
+            </div>
+          </div>
+        </a>
+      {% empty %}
+        <p class="text-paper/50">Collections will appear here once the studio publishes them.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ------------------------------------------------------------- SERVICES #}
+<section class="mx-auto max-w-[1400px] px-6 py-28 lg:px-12">
+  <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+    <div>
+      <p class="eyebrow">How we work</p>
+      <h2 class="mt-5 font-display text-4xl text-paper lg:text-6xl">Services</h2>
+    </div>
+    <a href="{% url 'website:services' %}" class="btn-outline">Full details</a>
+  </div>
+
+  <div class="mt-14 divide-y divide-gold/15 border-y border-gold/20" data-stagger>
+    {% for service in services %}
+      <a href="{{ service.get_absolute_url }}" class="group grid gap-4 py-8 md:grid-cols-[auto_1fr_auto] md:items-center md:gap-10">
+        <span class="font-display text-sm text-gold">{{ forloop.counter|stringformat:"02d" }}</span>
+        <div>
+          <h3 class="font-display text-2xl text-paper transition group-hover:text-gold lg:text-3xl">{{ service.title }}</h3>
+          <p class="mt-2 max-w-2xl text-sm text-paper/50">{{ service.short_description|default:service.tagline }}</p>
+        </div>
+        <span class="text-[11px] uppercase tracking-luxe text-gold/70">{{ service.price_display }}</span>
+      </a>
+    {% empty %}
+      <p class="py-8 text-paper/50">Services will be listed here shortly.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{# --------------------------------------------------------- TESTIMONIALS #}
+{% if testimonials %}
+<section class="relative overflow-hidden bg-slateink py-28">
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.08),transparent_60%)]"></div>
+  <div class="relative mx-auto max-w-[1200px] px-6 lg:px-12">
+    <p class="eyebrow text-center" data-reveal>Kind words</p>
+    <div class="swiper testimonial-swiper mt-12" data-reveal>
+      <div class="swiper-wrapper">
+        {% for testimonial in testimonials %}
+          <div class="swiper-slide">
+            <figure class="mx-auto max-w-3xl text-center">
+              <div class="flex justify-center gap-1 text-gold">
+                {% for star in testimonial.star_range %}<span>&#9733;</span>{% endfor %}
+              </div>
+              <blockquote class="mt-8 font-display text-2xl leading-snug text-paper lg:text-4xl">
+                &ldquo;{{ testimonial.quote }}&rdquo;
+              </blockquote>
+              <figcaption class="mt-8 text-[11px] uppercase tracking-luxe text-paper/40">
+                {{ testimonial.author_name }}{% if testimonial.author_role %} &middot; {{ testimonial.author_role }}{% endif %}
+              </figcaption>
+            </figure>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="swiper-pagination mt-10 !relative"></div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# --------------------------------------------------------------- FRAMES #}
+{% if featured_images %}
+<section class="mx-auto max-w-[1400px] px-6 py-28 lg:px-12">
+  <p class="eyebrow" data-reveal>From the archive</p>
+  <div class="mt-10 columns-1 gap-5 sm:columns-2 lg:columns-3 [&>*]:mb-5" data-stagger>
+    {% for image in featured_images %}
+      <a href="{{ image.category.get_absolute_url }}" class="media-frame block break-inside-avoid">
+        <img src="{{ image.image.url }}" alt="{{ image.display_alt }}" loading="lazy">
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{# ------------------------------------------------------------------ CTA #}
+<section class="relative overflow-hidden bg-ink py-32 text-paper">
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(200,169,81,0.16),transparent_60%)]"></div>
+  <div class="relative mx-auto max-w-3xl px-6 text-center" data-reveal>
+    <p class="eyebrow">Commissions open</p>
+    <h2 class="mt-6 font-display text-4xl leading-tight lg:text-7xl">A handful of dates remain.</h2>
+    <p class="mt-6 text-paper/60">Tell us about your story and we will send availability, packages and a sample gallery.</p>
+    <div class="mt-10 flex flex-wrap justify-center gap-4">
+      <a href="{% url 'website:contact' %}" class="btn-gold">Begin an enquiry</a>
+      <a href="{% url 'accounts:client_login' %}" class="btn-ghost">Client gallery login</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/three-hero.js' %}" defer></script>
+<script>
+  window.addEventListener("load", function () {
+    if (typeof Swiper === "undefined") return;
+    new Swiper(".testimonial-swiper", {
+      loop: true,
+      autoplay: { delay: 6000 },
+      speed: 900,
+      effect: "fade",
+      fadeEffect: { crossFade: true },
+      pagination: { el: ".testimonial-swiper .swiper-pagination", clickable: true },
+    });
+  });
+</script>
+{% endblock %}

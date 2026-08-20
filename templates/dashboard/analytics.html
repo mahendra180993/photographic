@@ -1,0 +1,113 @@
+{% extends "dashboard/base.html" %}
+{% load ui humanize %}
+
+{% block content %}
+<section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="dash-card p-5"><p class="text-[11px] uppercase tracking-luxe text-slate-400">Gallery views</p><p class="mt-3 font-display text-4xl">{{ views_total }}</p></div>
+  <div class="dash-card p-5"><p class="text-[11px] uppercase tracking-luxe text-slate-400">Downloads</p><p class="mt-3 font-display text-4xl">{{ downloads_total }}</p><p class="mt-2 text-xs text-slate-500">{{ downloads_week }} this week</p></div>
+  <div class="dash-card p-5"><p class="text-[11px] uppercase tracking-luxe text-slate-400">Selections</p><p class="mt-3 font-display text-4xl text-gold">{{ selections_total }}</p></div>
+  <div class="dash-card p-5"><p class="text-[11px] uppercase tracking-luxe text-slate-400">Storage</p><p class="mt-3 font-display text-4xl">{{ storage_bytes|filesize }}</p><p class="mt-2 text-xs text-slate-500">{{ image_count }} files</p></div>
+</section>
+
+<div class="mt-6 grid gap-6 xl:grid-cols-2">
+  <section class="dash-card overflow-hidden">
+    <div class="border-b border-slate-100 px-6 py-4"><h2 class="font-display text-lg">Most viewed galleries</h2></div>
+    <table class="dash-table w-full text-sm">
+      <tbody>
+        {% for gallery in top_galleries %}
+          <tr>
+            <td>
+              <a href="{{ gallery.get_dashboard_url }}" class="font-medium hover:text-gold">{{ gallery.title }}</a>
+              <p class="text-xs text-slate-400">{{ gallery.customer.full_name }}</p>
+            </td>
+            <td class="text-right">
+              <span class="font-display text-lg">{{ gallery.view_count }}</span>
+              <div class="mt-1 h-1 w-24 overflow-hidden rounded-full bg-slate-100">
+                <div class="h-full rounded-full bg-ink" style="width:{{ gallery.view_count|percentage:views_total }}%"></div>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td class="px-6 py-10 text-center text-slate-400">No data yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="dash-card overflow-hidden">
+    <div class="border-b border-slate-100 px-6 py-4"><h2 class="font-display text-lg">Most downloaded</h2></div>
+    <table class="dash-table w-full text-sm">
+      <tbody>
+        {% for gallery in top_downloaded %}
+          <tr>
+            <td><a href="{{ gallery.get_dashboard_url }}" class="font-medium hover:text-gold">{{ gallery.title }}</a></td>
+            <td class="text-right font-display text-lg">{{ gallery.download_count }}</td>
+          </tr>
+        {% empty %}
+          <tr><td class="px-6 py-10 text-center text-slate-400">No downloads recorded.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="dash-card p-6">
+    <h2 class="font-display text-lg">Gallery interactions</h2>
+    <ul class="mt-5 space-y-3">
+      {% for row in action_breakdown %}
+        <li>
+          <div class="flex items-center justify-between text-sm">
+            <span class="capitalize text-slate-600">{{ row.action|cut:"_" }}</span>
+            <span class="text-slate-400">{{ row.total }}</span>
+          </div>
+          <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+            <div class="h-full rounded-full bg-gold" style="width:{{ row.total|percentage:views_total }}%"></div>
+          </div>
+        </li>
+      {% empty %}
+        <li class="text-sm text-slate-400">Nothing logged yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="dash-card overflow-hidden">
+    <div class="border-b border-slate-100 px-6 py-4"><h2 class="font-display text-lg">Busiest clients</h2></div>
+    <table class="dash-table w-full text-sm">
+      <tbody>
+        {% for customer in busiest_clients %}
+          <tr>
+            <td><a href="{% url 'dashboard:customer_detail' customer.pk %}" class="font-medium hover:text-gold">{{ customer.full_name }}</a></td>
+            <td class="text-right text-slate-500">{{ customer.total }} galler{{ customer.total|pluralize:"y,ies" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td class="px-6 py-10 text-center text-slate-400">No customers yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<section class="dash-card mt-6 overflow-hidden">
+  <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+    <h2 class="font-display text-lg">Recent gallery access</h2>
+    <a href="{% url 'dashboard:activity' %}" class="text-xs text-slate-400 hover:text-gold">Full activity log</a>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="dash-table w-full min-w-[640px] text-sm">
+      <thead class="bg-slate-50/70"><tr><th>Gallery</th><th>Action</th><th>Who</th><th>IP</th><th class="text-right">When</th></tr></thead>
+      <tbody>
+        {% for log in access_logs %}
+          <tr>
+            <td class="truncate">{{ log.gallery.title }}</td>
+            <td>{{ log.get_action_display }}</td>
+            <td class="text-slate-500">{{ log.user.get_display_name|default:"Guest" }}</td>
+            <td class="text-xs text-slate-400">{{ log.ip_address|default:"-" }}</td>
+            <td class="text-right text-xs text-slate-400">{{ log.created_at|naturaltime }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">No access recorded yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

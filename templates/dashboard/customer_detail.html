@@ -1,0 +1,99 @@
+{% extends "dashboard/base.html" %}
+{% load static ui humanize %}
+
+{% block header_actions %}
+  <a href="{% url 'dashboard:customer_update' customer.pk %}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">Edit</a>
+{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 xl:grid-cols-[1fr_1.6fr]">
+
+  <aside class="dash-card p-6">
+    <div class="flex items-center gap-4">
+      <span class="grid h-14 w-14 place-items-center rounded-full bg-ink font-display text-lg text-gold">{{ customer.initials }}</span>
+      <div class="min-w-0">
+        <h2 class="truncate font-display text-xl">{{ customer.full_name }}</h2>
+        <p class="text-xs text-slate-400">{{ customer.get_customer_type_display }}</p>
+      </div>
+    </div>
+
+    <div class="mt-5">{% status_pill customer.status %}</div>
+
+    <dl class="mt-6 space-y-3 border-t border-slate-100 pt-5 text-sm">
+      <div class="flex justify-between gap-4"><dt class="text-slate-400">Email</dt><dd class="truncate"><a href="mailto:{{ customer.email }}" class="hover:text-gold">{{ customer.email }}</a></dd></div>
+      {% if customer.phone %}<div class="flex justify-between gap-4"><dt class="text-slate-400">Phone</dt><dd>{{ customer.phone }}</dd></div>{% endif %}
+      {% if customer.company %}<div class="flex justify-between gap-4"><dt class="text-slate-400">Company</dt><dd>{{ customer.company }}</dd></div>{% endif %}
+      {% if customer.city %}<div class="flex justify-between gap-4"><dt class="text-slate-400">Location</dt><dd>{{ customer.city }}{% if customer.country %}, {{ customer.country }}{% endif %}</dd></div>{% endif %}
+      {% if customer.assigned_photographer %}<div class="flex justify-between gap-4"><dt class="text-slate-400">Photographer</dt><dd>{{ customer.assigned_photographer.display_name }}</dd></div>{% endif %}
+      <div class="flex justify-between gap-4"><dt class="text-slate-400">Client login</dt>
+        <dd>{% if customer.has_login %}<span class="text-emerald-600">{{ customer.user.username }}</span>{% else %}<span class="text-slate-400">None</span>{% endif %}</dd></div>
+      <div class="flex justify-between gap-4"><dt class="text-slate-400">Added</dt><dd>{{ customer.created_at|date:"j M Y" }}</dd></div>
+    </dl>
+
+    {% if customer.tag_list %}
+      <div class="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-5">
+        {% for tag in customer.tag_list %}
+          <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] text-slate-600">{{ tag }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if customer.notes %}
+      <div class="mt-5 border-t border-slate-100 pt-5">
+        <p class="text-[10px] uppercase tracking-luxe text-slate-400">Notes</p>
+        <p class="mt-2 whitespace-pre-line text-sm text-slate-600">{{ customer.notes }}</p>
+      </div>
+    {% endif %}
+
+    <a href="{% url 'dashboard:customer_delete' customer.pk %}" class="mt-6 block rounded-lg border border-rose-200 px-4 py-2 text-center text-xs font-medium text-rose-600 hover:bg-rose-50">Delete customer</a>
+  </aside>
+
+  <div class="space-y-6">
+    <section class="grid gap-4 sm:grid-cols-3">
+      <div class="dash-card p-5"><p class="text-[10px] uppercase tracking-luxe text-slate-400">Galleries</p><p class="mt-2 font-display text-3xl">{{ galleries|length }}</p></div>
+      <div class="dash-card p-5"><p class="text-[10px] uppercase tracking-luxe text-slate-400">Selections</p><p class="mt-2 font-display text-3xl text-gold">{{ selection_total }}</p></div>
+      <div class="dash-card p-5"><p class="text-[10px] uppercase tracking-luxe text-slate-400">Album requests</p><p class="mt-2 font-display text-3xl">{{ album_requests|length }}</p></div>
+    </section>
+
+    <section class="dash-card overflow-hidden">
+      <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+        <h3 class="font-display text-lg">Galleries</h3>
+        <a href="{% url 'dashboard:gallery_create' %}" class="text-xs text-gold hover:underline">New gallery</a>
+      </div>
+      <table class="dash-table w-full text-sm">
+        <tbody>
+          {% for gallery in galleries %}
+            <tr>
+              <td>
+                <a href="{{ gallery.get_dashboard_url }}" class="font-medium hover:text-gold">{{ gallery.title }}</a>
+                <p class="text-xs text-slate-400">{{ gallery.photo_count }} photographs</p>
+              </td>
+              <td>{% status_pill gallery.status %}</td>
+              <td class="text-right text-xs text-slate-400">{{ gallery.created_at|date:"j M Y" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td class="px-6 py-10 text-center text-slate-400">No galleries for this client yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="dash-card overflow-hidden">
+      <div class="border-b border-slate-100 px-6 py-4"><h3 class="font-display text-lg">Recent downloads</h3></div>
+      <table class="dash-table w-full text-sm">
+        <tbody>
+          {% for download in downloads %}
+            <tr>
+              <td>{{ download.gallery.title }}</td>
+              <td class="text-xs text-slate-500">{{ download.get_download_type_display }} ({{ download.item_count }})</td>
+              <td class="text-right text-xs text-slate-400">{{ download.created_at|naturaltime }}</td>
+            </tr>
+          {% empty %}
+            <tr><td class="px-6 py-10 text-center text-slate-400">No downloads recorded.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+</div>
+{% endblock %}

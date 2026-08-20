@@ -1,0 +1,86 @@
+{% extends "dashboard/base.html" %}
+{% load static ui humanize %}
+
+{% block header_actions %}
+  <a href="{% url 'dashboard:gallery_category_list' %}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-gold">Categories</a>
+{% endblock %}
+
+{% block content %}
+<div class="dash-card mb-6 p-4">
+  <form method="get" class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+    <input type="search" name="q" value="{{ search_term }}" placeholder="Search title, client or access code"
+           class="w-full min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 sm:min-w-[240px]">
+    <select name="status" data-autosubmit class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm sm:w-auto">
+      <option value="">All statuses</option>
+      {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <div class="flex items-center gap-3">
+      <button type="submit" class="rounded-lg bg-ink px-4 py-2 text-xs font-medium text-white">Filter</button>
+      <a href="{% url 'dashboard:gallery_list' %}" class="text-xs text-slate-400 hover:text-slate-700">Reset</a>
+    </div>
+  </form>
+</div>
+
+<div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+  {% for gallery in object_list %}
+    <article class="dash-card overflow-hidden transition hover:border-gold">
+      <a href="{{ gallery.get_dashboard_url }}" class="block">
+        <div class="media-frame aspect-[16/10]">
+          {% if gallery.cover %}
+            <img src="{{ gallery.cover.url }}" alt="{{ gallery.title }}" loading="lazy">
+          {% else %}
+            <img src="{% static 'img/placeholder.svg' %}" alt="{{ gallery.title }}" loading="lazy">
+          {% endif %}
+        </div>
+      </a>
+      <div class="p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h2 class="truncate font-display text-lg">
+              <a href="{{ gallery.get_dashboard_url }}" class="hover:text-gold">{{ gallery.title }}</a>
+            </h2>
+            <p class="truncate text-xs text-slate-400">{{ gallery.customer.full_name }}</p>
+          </div>
+          {% status_pill gallery.status %}
+        </div>
+
+        <dl class="mt-4 grid grid-cols-3 gap-2 border-t border-slate-100 pt-4 text-center">
+          <div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Photos</dt><dd class="mt-0.5 text-sm font-medium">{{ gallery.photo_count }}</dd></div>
+          <div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Picks</dt><dd class="mt-0.5 text-sm font-medium text-gold">{{ gallery.pick_count }}</dd></div>
+          <div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Views</dt><dd class="mt-0.5 text-sm font-medium">{{ gallery.view_count }}</dd></div>
+        </dl>
+
+        <div class="mt-4 flex items-center justify-between text-xs">
+          <span class="text-slate-400">
+            {% if gallery.is_expired %}<span class="text-rose-500">Expired</span>
+            {% elif gallery.days_left is not None %}{{ gallery.days_left }} days left
+            {% else %}No expiry{% endif %}
+          </span>
+          <div class="flex gap-3">
+            <a href="{% url 'dashboard:gallery_update' gallery.pk %}" class="text-slate-500 hover:text-gold">Edit</a>
+            <a href="{{ gallery.get_dashboard_url }}" class="text-slate-500 hover:text-gold">Manage</a>
+          </div>
+        </div>
+      </div>
+    </article>
+  {% empty %}
+    <div class="dash-card col-span-full px-6 py-20 text-center">
+      <p class="font-display text-xl">No galleries yet</p>
+      <p class="mx-auto mt-2 max-w-sm text-sm text-slate-500">Create a gallery, upload the photographs and deliver it to your client.</p>
+      <a href="{% url 'dashboard:gallery_create' %}" class="mt-6 inline-block rounded-lg bg-gold px-4 py-2 text-xs font-medium text-white">New gallery</a>
+    </div>
+  {% endfor %}
+</div>
+
+{% if is_paginated %}
+  <div class="mt-8 flex items-center justify-between text-sm">
+    <span class="text-slate-500">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+    <div class="flex gap-2">
+      {% if page_obj.has_previous %}<a href="{% query_replace page=page_obj.previous_page_number %}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs">Previous</a>{% endif %}
+      {% if page_obj.has_next %}<a href="{% query_replace page=page_obj.next_page_number %}" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs">Next</a>{% endif %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

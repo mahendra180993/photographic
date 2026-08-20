@@ -1,0 +1,55 @@
+{% extends "dashboard/base.html" %}
+{% load ui humanize %}
+
+{% block content %}
+<div class="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+
+  <section class="dash-card p-6">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h2 class="font-display text-2xl">{{ message_obj.display_subject }}</h2>
+        <p class="mt-2 text-sm text-slate-500">
+          {{ message_obj.name }} &middot;
+          <a href="mailto:{{ message_obj.email }}" class="hover:text-gold">{{ message_obj.email }}</a>
+          {% if message_obj.phone %} &middot; {{ message_obj.phone }}{% endif %}
+        </p>
+      </div>
+      {% status_pill message_obj.status %}
+    </div>
+
+    <div class="mt-6 whitespace-pre-line rounded-lg bg-slate-50 p-5 text-sm leading-relaxed text-slate-700">{{ message_obj.message }}</div>
+
+    <dl class="mt-6 grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 text-sm sm:grid-cols-4">
+      {% if message_obj.event_type %}<div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Type</dt><dd class="mt-1">{{ message_obj.event_type }}</dd></div>{% endif %}
+      {% if message_obj.event_date %}<div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Date</dt><dd class="mt-1">{{ message_obj.event_date|date:"j M Y" }}</dd></div>{% endif %}
+      {% if message_obj.location %}<div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Location</dt><dd class="mt-1">{{ message_obj.location }}</dd></div>{% endif %}
+      {% if message_obj.budget %}<div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Budget</dt><dd class="mt-1">{{ message_obj.budget }}</dd></div>{% endif %}
+      <div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Received</dt><dd class="mt-1">{{ message_obj.created_at|naturaltime }}</dd></div>
+      <div><dt class="text-[10px] uppercase tracking-luxe text-slate-400">Source</dt><dd class="mt-1">{{ message_obj.source }}</dd></div>
+    </dl>
+
+    <a href="mailto:{{ message_obj.email }}?subject=Re: {{ message_obj.display_subject|urlencode }}"
+       class="mt-6 inline-block rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-white">Reply by email</a>
+  </section>
+
+  <aside class="dash-card p-6">
+    <h3 class="font-display text-lg">Triage</h3>
+    <form method="post" class="form-grid mt-5 space-y-4" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+        <div>
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+        </div>
+      {% endfor %}
+      <button type="submit" class="w-full rounded-lg bg-gold px-5 py-2.5 text-sm font-medium text-white">Save</button>
+    </form>
+
+    <div class="mt-6 border-t border-slate-100 pt-5 text-xs text-slate-400">
+      {% if message_obj.ip_address %}<p>IP {{ message_obj.ip_address }}</p>{% endif %}
+      {% if message_obj.handled_by %}<p class="mt-1">Handled by {{ message_obj.handled_by.get_display_name }}</p>{% endif %}
+      {% if message_obj.replied_at %}<p class="mt-1">Replied {{ message_obj.replied_at|naturaltime }}</p>{% endif %}
+    </div>
+  </aside>
+</div>
+{% endblock %}

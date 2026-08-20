@@ -1,0 +1,53 @@
+<footer class="relative overflow-hidden bg-ink text-paper">
+  <div class="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-gold/10 blur-3xl"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-24 h-80 w-80 rounded-full bg-gold/10 blur-3xl"></div>
+  <div class="mx-auto max-w-[1400px] px-6 py-20 lg:px-12">
+    <div class="grid gap-14 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div>
+        <p class="text-[11px] uppercase tracking-luxe text-gold">{{ site.tagline }}</p>
+        <h2 class="mt-5 font-display text-4xl leading-tight lg:text-5xl">
+          Let us photograph<br>your next chapter.
+        </h2>
+        <a href="{% url 'website:contact' %}" class="mt-8 inline-flex items-center gap-3 border-b border-gold pb-1 text-sm uppercase tracking-luxe text-gold transition-all hover:gap-5">
+          Start an enquiry <span>&rarr;</span>
+        </a>
+      </div>
+
+      <div>
+        <h3 class="text-[11px] uppercase tracking-luxe text-paper/40">Explore</h3>
+        <ul class="mt-5 space-y-3 text-sm text-paper/75">
+          {% for item in main_nav %}
+            <li><a href="{% url item.url_name %}" class="transition hover:text-gold">{{ item.label }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-[11px] uppercase tracking-luxe text-paper/40">Studio</h3>
+        <ul class="mt-5 space-y-3 text-sm text-paper/75">
+          <li>{{ site.full_address }}</li>
+          <li><a href="mailto:{{ site.contact_email }}" class="transition hover:text-gold">{{ site.contact_email }}</a></li>
+          <li><a href="tel:{{ site.phone }}" class="transition hover:text-gold">{{ site.phone }}</a></li>
+          <li class="text-paper/50">{{ site.opening_hours }}</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-[11px] uppercase tracking-luxe text-paper/40">Follow</h3>
+        <ul class="mt-5 space-y-3 text-sm text-paper/75">
+          {% for name, url in site.social_links %}
+            <li><a href="{{ url }}" rel="noopener" target="_blank" class="transition hover:text-gold">{{ name }}</a></li>
+          {% empty %}
+            <li class="text-paper/40">Instagram &middot; Pinterest</li>
+          {% endfor %}
+          <li class="pt-3"><a href="{% url 'accounts:admin_login' %}" class="text-paper/40 transition hover:text-gold">Studio login</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-16 flex flex-col gap-4 border-t border-white/10 pt-8 text-xs text-paper/40 sm:flex-row sm:items-center sm:justify-between">
+      <p>&copy; {% now "Y" %} {{ BRAND_NAME }}. All rights reserved.</p>
+      <p>{{ site.footer_note }}</p>
+    </div>
+  </div>
+</footer>

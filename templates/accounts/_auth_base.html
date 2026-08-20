@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  {% include "partials/head.html" %}
+</head>
+<body class="min-h-screen bg-ink font-sans text-paper antialiased">
+  {% include "partials/messages.html" %}
+
+  <div class="grid min-h-screen lg:grid-cols-2">
+
+    {# ---- visual side ---- #}
+    <aside class="relative hidden overflow-hidden lg:block grain">
+      {% if site.hero_image %}
+        <img src="{{ site.hero_image.url }}" alt="" class="absolute inset-0 h-full w-full object-cover opacity-55">
+      {% else %}
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.22),transparent_55%),radial-gradient(circle_at_75%_75%,rgba(255,255,255,0.08),transparent_50%)]"></div>
+      {% endif %}
+      <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-transparent"></div>
+      <div class="relative flex h-full flex-col justify-between p-14">
+        <a href="{% url 'website:home' %}" class="inline-flex items-center gap-3">
+          <span class="grid h-9 w-9 place-items-center rounded-full border border-gold/70 font-display text-sm text-gold shadow-[0_0_24px_rgba(212,175,55,0.25)]">LA</span>
+          <span class="font-display text-lg">{{ BRAND_NAME }}</span>
+        </a>
+        <div>
+          <p class="eyebrow">{% block aside_eyebrow %}Private client area{% endblock %}</p>
+          <h2 class="mt-6 font-display text-5xl leading-tight">{% block aside_title %}Your photographs,<br>beautifully delivered.{% endblock %}</h2>
+          <p class="mt-6 max-w-sm text-sm leading-relaxed text-paper/55">{% block aside_body %}View your gallery, mark your favourites, submit an album selection and download your originals.{% endblock %}</p>
+        </div>
+        <p class="text-[11px] uppercase tracking-luxe text-paper/30">{{ site.city }} &middot; {{ site.country }}</p>
+      </div>
+    </aside>
+
+    {# ---- form side ---- #}
+    <main class="relative flex items-center justify-center bg-surface px-6 py-16 text-paper lg:px-16">
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.06),transparent_55%)]"></div>
+      <div class="relative w-full max-w-md">
+        <a href="{% url 'website:home' %}" class="mb-10 inline-block text-[11px] uppercase tracking-luxe text-paper/40 hover:text-gold lg:hidden">&larr; {{ BRAND_NAME }}</a>
+        {% block auth_content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+
+  {% include "partials/scripts.html" %}
+</body>
+</html>
