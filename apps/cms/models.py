@@ -17,7 +17,7 @@ from apps.common.utils import branding_path, team_photo_path, testimonial_photo_
 class WebsiteSettings(SingletonModel, TimeStampedModel):
     """Global brand + contact configuration edited from the studio dashboard."""
 
-    site_name = models.CharField(max_length=120, default="Lumina Atelier")
+    site_name = models.CharField(max_length=120, default="MS Photo Studio")
     tagline = models.CharField(max_length=200, default="Photography for the quietly extraordinary")
     logo = models.ImageField(upload_to=branding_path, blank=True, null=True)
     logo_light = models.ImageField(upload_to=branding_path, blank=True, null=True)
@@ -42,7 +42,7 @@ class WebsiteSettings(SingletonModel, TimeStampedModel):
     awards_count = models.PositiveIntegerField(default=17)
     countries_count = models.PositiveIntegerField(default=23)
 
-    email = models.EmailField(blank=True, default="studio@luminaatelier.test")
+    email = models.EmailField(blank=True, default="studio@msphotostudio.com")
     booking_email = models.EmailField(blank=True)
     phone = models.CharField(max_length=40, blank=True, default="+33 1 84 80 00 00")
     whatsapp = models.CharField(max_length=40, blank=True)
@@ -111,11 +111,11 @@ class WebsiteSettings(SingletonModel, TimeStampedModel):
 
 
 class SEOSettings(SingletonModel, TimeStampedModel):
-    meta_title = models.CharField(max_length=180, default="Lumina Atelier | Fine Art Photography Studio")
+    meta_title = models.CharField(max_length=180, default="MS Photo Studio | Fine Art Photography Studio")
     meta_description = models.TextField(
         max_length=320,
         default=(
-            "Lumina Atelier is a boutique photography studio creating timeless "
+            "MS Photo Studio is a boutique photography studio creating timeless "
             "wedding, editorial and brand imagery worldwide."
         ),
     )

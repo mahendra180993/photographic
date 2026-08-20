@@ -1,5 +1,5 @@
 """
-Django settings for the Lumina Atelier photography studio platform.
+Django settings for the MS Photo Studio photography studio platform.
 
 Reads configuration from environment variables (and an optional .env file)
 so the same code base runs locally on SQLite and in production on Postgres.
@@ -88,7 +88,7 @@ if _backend_url:
     _register_site_origin(_backend_url)
 
 SITE_DOMAIN = env("SITE_DOMAIN", "http://localhost:8000")
-SITE_NAME = env("SITE_NAME", "Lumina Atelier")
+SITE_NAME = env("SITE_NAME", "MS Photo Studio")
 
 
 # ---------------------------------------------------------------------------
@@ -304,9 +304,9 @@ EMAIL_PORT = env_int("EMAIL_PORT", 25)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", False)
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "Lumina Atelier <studio@luminaatelier.test>")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "MS Photo Studio <studio@msphotostudio.com>")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
-STUDIO_NOTIFICATION_EMAIL = env("STUDIO_NOTIFICATION_EMAIL", "studio@luminaatelier.test")
+STUDIO_NOTIFICATION_EMAIL = env("STUDIO_NOTIFICATION_EMAIL", "studio@msphotostudio.com")
 
 
 # ---------------------------------------------------------------------------
@@ -342,7 +342,7 @@ if not DEBUG:
 # ---------------------------------------------------------------------------
 # Studio / gallery domain settings
 # ---------------------------------------------------------------------------
-STUDIO_BRAND_NAME = "Lumina Atelier"
+STUDIO_BRAND_NAME = "MS Photo Studio"
 STUDIO_BRAND_GOLD = "#D4AF37"
 GALLERY_DEFAULT_EXPIRY_DAYS = env_int("GALLERY_DEFAULT_EXPIRY_DAYS", 90)
 GALLERY_ACCESS_SESSION_KEY = "unlocked_galleries"

@@ -1,5 +1,5 @@
 /* =========================================================================
-   Lumina Atelier - core UI behaviour (navigation, toasts, utilities)
+   MS Photo Studio - core UI behaviour (navigation, toasts, utilities)
    ========================================================================= */
 (function () {
   "use strict";

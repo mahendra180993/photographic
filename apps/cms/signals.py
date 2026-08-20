@@ -16,5 +16,5 @@ def notify_studio_of_contact_message(sender, instance, created, **kwargs):
         category="contact",
         level="info",
         url=f"/studio/messages/{instance.pk}/",
-        email_subject=f"[Lumina Atelier] New enquiry from {instance.name}",
+        email_subject=f"[MS Photo Studio] New enquiry from {instance.name}",
     )

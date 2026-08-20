@@ -39,7 +39,7 @@ class ClientLoginView(BaseLoginView):
     template_name = "accounts/client_login.html"
     authentication_form = StyledAuthenticationForm
     page_title = "Client area"
-    meta_description = "Sign in to your private Lumina Atelier gallery."
+    meta_description = "Sign in to your private MS Photo Studio gallery."
 
     def get_success_url(self):
         url = self.get_redirect_url()

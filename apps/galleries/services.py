@@ -91,7 +91,7 @@ def build_gallery_zip(gallery, images=None, max_images=None):
             f"{gallery.slug}/README.txt",
             (
                 f"{gallery.title}\n"
-                f"Delivered by Lumina Atelier\n"
+                f"Delivered by MS Photo Studio\n"
                 f"Downloaded: {timezone.now():%Y-%m-%d %H:%M} UTC\n"
                 f"Images included: {included}\n"
             ),

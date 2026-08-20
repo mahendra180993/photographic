@@ -578,7 +578,7 @@ class GalleryNotifyView(StaffRequiredMixin, View):
             url=gallery.get_absolute_url(),
             gallery=gallery,
             actor=request.user,
-            email_subject=f"[Lumina Atelier] Your gallery '{gallery.title}' is ready",
+            email_subject=f"[MS Photo Studio] Your gallery '{gallery.title}' is ready",
         )
         Gallery.objects.filter(pk=gallery.pk).update(notified_at=timezone.now())
         messages.success(request, f"Notification sent to {gallery.customer.email}.")

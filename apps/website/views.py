@@ -19,7 +19,7 @@ class HomeView(PageMetaMixin, TemplateView):
     template_name = "website/home.html"
     active_nav = "home"
     meta_description = (
-        "Lumina Atelier - a boutique photography studio crafting timeless wedding, "
+        "MS Photo Studio - a boutique photography studio crafting timeless wedding, "
         "editorial and brand imagery."
     )
 
@@ -51,7 +51,7 @@ class AboutView(PageMetaMixin, TemplateView):
     template_name = "website/about.html"
     active_nav = "about"
     page_title = "The studio"
-    meta_description = "Meet the photographers and craftspeople behind Lumina Atelier."
+    meta_description = "Meet the photographers and craftspeople behind MS Photo Studio."
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -70,7 +70,7 @@ class PortfolioListView(PageMetaMixin, ListView):
     context_object_name = "categories"
     active_nav = "portfolio"
     page_title = "Portfolio"
-    meta_description = "Selected work from the Lumina Atelier archive."
+    meta_description = "Selected work from the MS Photo Studio archive."
 
     def get_queryset(self):
         return (
@@ -154,7 +154,7 @@ class TestimonialListView(PageMetaMixin, ListView):
     context_object_name = "testimonials"
     active_nav = "testimonials"
     page_title = "Kind words"
-    meta_description = "What our clients say about working with Lumina Atelier."
+    meta_description = "What our clients say about working with MS Photo Studio."
 
     def get_queryset(self):
         return Testimonial.objects.active()

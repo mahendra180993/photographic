@@ -47,6 +47,6 @@ def gallery_saved(sender, instance, created, **kwargs):
             level="success",
             url=instance.get_absolute_url(),
             gallery=instance,
-            email_subject=f"[Lumina Atelier] Your gallery '{instance.title}' is ready",
+            email_subject=f"[MS Photo Studio] Your gallery '{instance.title}' is ready",
         )
         Gallery.objects.filter(pk=instance.pk).update(notified_at=timezone.now())

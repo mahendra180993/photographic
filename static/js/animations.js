@@ -1,5 +1,5 @@
 /* =========================================================================
-   Lumina Atelier - cinematic motion (Lenis smooth scroll + GSAP reveals)
+   MS Photo Studio - cinematic motion (Lenis smooth scroll + GSAP reveals)
    ========================================================================= */
 (function () {
   "use strict";

@@ -1,5 +1,5 @@
 /* =========================================================================
-   Lumina Atelier - optional Three.js particle veil behind the hero.
+   MS Photo Studio - optional Three.js particle veil behind the hero.
    Degrades silently when WebGL or the CDN is unavailable.
    ========================================================================= */
 (function () {

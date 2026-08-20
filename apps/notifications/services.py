@@ -56,7 +56,7 @@ def notify_studio_team(title, message="", category="system", level="info", url="
     User = get_user_model()
     recipients = list(User.objects.studio_team())
     emailed = _send_email(
-        email_subject or f"[Lumina Atelier] {title}",
+        email_subject or f"[MS Photo Studio] {title}",
         message,
         [settings.STUDIO_NOTIFICATION_EMAIL],
     ) if email_subject else False

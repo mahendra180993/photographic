@@ -1,5 +1,5 @@
 /* =========================================================================
-   Lumina Atelier - studio dashboard interactions
+   MS Photo Studio - studio dashboard interactions
    ========================================================================= */
 (function () {
   "use strict";

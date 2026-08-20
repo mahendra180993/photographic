@@ -1,5 +1,5 @@
 /* =========================================================================
-   Lumina Atelier - client gallery: lightbox, selection, bulk actions
+   MS Photo Studio - client gallery: lightbox, selection, bulk actions
    ========================================================================= */
 (function () {
   "use strict";

@@ -245,7 +245,7 @@ def fetch_photo(url, width=1400, label=""):
 
 
 class Command(BaseCommand):
-    help = "Populate the database with a rich demo dataset for Lumina Atelier."
+    help = "Populate the database with a rich demo dataset for MS Photo Studio."
 
     def add_arguments(self, parser):
         parser.add_argument("--reset", action="store_true", help="Delete existing demo content first.")
@@ -264,7 +264,7 @@ class Command(BaseCommand):
             self.reset()
 
         with transaction.atomic():
-            self.stdout.write(self.style.MIGRATE_HEADING("Seeding Lumina Atelier demo data"))
+            self.stdout.write(self.style.MIGRATE_HEADING("Seeding MS Photo Studio demo data"))
             if self.with_images:
                 self.stdout.write("  downloading photographs from the Unsplash CDN, this takes a few minutes...")
             admin = self.create_users()
@@ -341,7 +341,7 @@ class Command(BaseCommand):
         admin, created = User.objects.get_or_create(
             username="admin",
             defaults={
-                "email": "admin@luminaatelier.test",
+                "email": "admin@msphotostudio.com",
                 "first_name": "Amara",
                 "last_name": "Vance",
                 "role": User.Roles.ADMIN,
@@ -388,7 +388,7 @@ class Command(BaseCommand):
             user, _ = User.objects.get_or_create(
                 username=spec["username"],
                 defaults={
-                    "email": f"{spec['username']}@luminaatelier.test",
+                    "email": f"{spec['username']}@msphotostudio.com",
                     "first_name": spec["first_name"],
                     "last_name": spec["last_name"],
                     "role": User.Roles.PHOTOGRAPHER,
@@ -424,9 +424,9 @@ class Command(BaseCommand):
     # -- CMS ---------------------------------------------------------------
     def create_settings(self):
         site = WebsiteSettings.load()
-        site.site_name = "Lumina Atelier"
+        site.site_name = "MS Photo Studio"
         site.tagline = "Photography for the quietly extraordinary"
-        site.hero_eyebrow = "Fine art photography atelier - Paris"
+        site.hero_eyebrow = "Fine art photography studio"
         site.hero_title = "Light, held still."
         site.hero_subtitle = (
             "A boutique studio crafting timeless imagery for weddings, editorial and brands. "
@@ -439,13 +439,13 @@ class Command(BaseCommand):
             "unhurried and honest."
         )
         site.about_body = (
-            "Founded in Paris in 2013, Lumina Atelier is a two-photographer studio supported by a "
+            "Founded in Paris in 2013, MS Photo Studio is a two-photographer studio supported by a "
             "small team of retouchers and album makers. We shoot on medium-format film and digital, "
             "we travel worldwide, and we deliver through a private client gallery designed to be as "
             "considered as the images inside it."
         )
-        site.email = "studio@luminaatelier.test"
-        site.booking_email = "bookings@luminaatelier.test"
+        site.email = "studio@msphotostudio.com"
+        site.booking_email = "bookings@msphotostudio.com"
         site.phone = "+33 1 84 80 00 00"
         site.address = "18 Rue des Lumieres"
         site.postcode = "75003"
@@ -470,14 +470,14 @@ class Command(BaseCommand):
         self.apply_image(site, "about_image", pick("about"), "about.jpg", width=1600)
 
         seo = SEOSettings.load()
-        seo.meta_title = "Lumina Atelier | Fine Art Wedding & Editorial Photography, Paris"
+        seo.meta_title = "MS Photo Studio | Fine Art Wedding & Editorial Photography"
         seo.meta_description = (
-            "Lumina Atelier is a boutique Paris photography studio creating timeless wedding, "
+            "MS Photo Studio is a boutique photography studio creating timeless wedding, "
             "editorial and brand imagery worldwide. Private client galleries included."
         )
         seo.meta_keywords = (
-            "paris wedding photographer, fine art photography, editorial photographer, "
-            "destination wedding, brand photography studio"
+            "wedding photographer, fine art photography, editorial photographer, "
+            "destination wedding, brand photography studio, MS Photo Studio"
         )
         seo.canonical_domain = "http://localhost:8000"
         seo.save()
@@ -651,7 +651,7 @@ class Command(BaseCommand):
                 name=name,
                 defaults={
                     "subtitle": subtitle,
-                    "description": f"A selection of {name.lower()} work from the Lumina Atelier archive.",
+                    "description": f"A selection of {name.lower()} work from the MS Photo Studio archive.",
                     "is_featured": index < 3,
                     "order": index,
                 },
@@ -804,7 +804,7 @@ class Command(BaseCommand):
                     "customer": spec["customer"],
                     "photographer": photographers[index % len(photographers)],
                     "category": spec["category"],
-                    "description": "Delivered by Lumina Atelier.",
+                    "description": "Delivered by MS Photo Studio.",
                     "welcome_message": spec["welcome"],
                     "location": spec["location"],
                     "event_date": (now - timedelta(days=30 * (index + 1))).date(),
@@ -897,12 +897,17 @@ class Command(BaseCommand):
             album.submitted_at = timezone.now() - timedelta(days=3)
             album.mark_submitted()
 
+        # Access logs are append-only (many rows per gallery+action), so
+        # get_or_create() is unsafe when duplicates already exist.
         for action in ["view", "select", "submit", "download"]:
-            GalleryAccessLog.objects.get_or_create(
-                gallery=gallery,
-                action=action,
-                defaults={"user": customer.user, "ip_address": "127.0.0.1", "note": "seeded"},
-            )
+            if not GalleryAccessLog.objects.filter(gallery=gallery, action=action).exists():
+                GalleryAccessLog.objects.create(
+                    gallery=gallery,
+                    action=action,
+                    user=customer.user,
+                    ip_address="127.0.0.1",
+                    note="seeded",
+                )
 
         if customer.user_id:
             Notification.objects.get_or_create(

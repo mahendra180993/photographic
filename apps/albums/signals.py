@@ -23,7 +23,7 @@ def album_request_saved(sender, instance, created, **kwargs):
             level="success",
             url=instance.get_absolute_url(),
             gallery=instance.gallery,
-            email_subject=f"[Lumina Atelier] Selection submitted by {instance.customer.full_name}",
+            email_subject=f"[MS Photo Studio] Selection submitted by {instance.customer.full_name}",
         )
         notify_customer(
             customer=instance.customer,
@@ -36,5 +36,5 @@ def album_request_saved(sender, instance, created, **kwargs):
             level="success",
             url=instance.gallery.get_absolute_url(),
             gallery=instance.gallery,
-            email_subject="[Lumina Atelier] We received your selection",
+            email_subject="[MS Photo Studio] We received your selection",
         )

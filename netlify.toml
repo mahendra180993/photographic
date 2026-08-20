@@ -1,4 +1,4 @@
-# Lumina Atelier — Netlify deployment
+# MS Photo Studio — Netlify deployment
 #
 # Netlify serves collected static files from the CDN and routes everything else
 # through netlify/functions/django.mts, which proxies to your Django backend
