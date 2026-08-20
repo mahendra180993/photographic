@@ -25,6 +25,21 @@ class HomeView(PageMetaMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        featured = list(
+            PortfolioImage.objects.active()
+            .select_related("category")
+            .filter(is_featured=True)
+            .order_by("order", "-created_at")[:12]
+        )
+        if len(featured) < 6:
+            featured = list(
+                PortfolioImage.objects.active()
+                .select_related("category")
+                .order_by("order", "-created_at")[:12]
+            )
+        testimonials = list(
+            Testimonial.objects.active().filter(is_featured=True).order_by("order")[:6]
+        ) or list(Testimonial.objects.active().order_by("order")[:6])
         context.update(
             {
                 "featured_categories": (
@@ -32,15 +47,9 @@ class HomeView(PageMetaMixin, TemplateView):
                     .annotate(photo_count=Count("images", filter=Q(images__is_active=True)))
                     .order_by("order", "name")[:6]
                 ),
-                "featured_images": (
-                    PortfolioImage.objects.active()
-                    .select_related("category")
-                    .filter(is_featured=True)[:9]
-                    or PortfolioImage.objects.active().select_related("category")[:9]
-                ),
-                "services": Service.objects.active().order_by("order")[:4],
-                "testimonials": Testimonial.objects.active().filter(is_featured=True)[:6]
-                or Testimonial.objects.active()[:6],
+                "featured_images": featured,
+                "services": Service.objects.active().order_by("order")[:5],
+                "testimonials": testimonials,
                 "team": TeamMember.objects.active()[:4],
             }
         )

@@ -34,11 +34,43 @@ def filesize(value):
     return human_filesize(value)
 
 
+# Bundled studio photos in static/img/studio (always available on Render).
+_PHOTO_FALLBACKS = {
+    "hero": "/static/img/studio/hero-studio.jpg",
+    "about": "/static/img/studio/about-studio.jpg",
+    "contact": "/static/img/studio/contact-studio.jpg",
+    "weddings": "/static/img/studio/collection-weddings.jpg",
+    "editorial": "/static/img/studio/collection-editorial.jpg",
+    "portraiture": "/static/img/studio/collection-portrait.jpg",
+    "portrait": "/static/img/studio/collection-portrait.jpg",
+    "interiors": "/static/img/studio/collection-interiors.jpg",
+    "landscape": "/static/img/studio/collection-landscape.jpg",
+    "wedding": "/static/img/studio/collection-weddings.jpg",
+    "service": "/static/img/studio/service-mood.jpg",
+    "archive": "/static/img/studio/archive-01.jpg",
+    "default": "/static/img/studio/hero-studio.jpg",
+}
+
+
+@register.filter
+def photo_url(field, fallback_key="default"):
+    """Return ImageField.url when the file exists, otherwise a bundled studio photo."""
+    try:
+        if field and getattr(field, "name", None):
+            storage = getattr(field, "storage", None)
+            if storage is None or storage.exists(field.name):
+                return field.url
+    except (ValueError, OSError):
+        pass
+    key = str(fallback_key or "default").lower().strip()
+    return _PHOTO_FALLBACKS.get(key) or _PHOTO_FALLBACKS["default"]
+
+
 @register.filter
 def initials(value):
     parts = [p for p in str(value or "").replace(".", " ").split() if p]
     if not parts:
-        return "LA"
+        return "MS"
     if len(parts) == 1:
         return parts[0][:2].upper()
     return (parts[0][0] + parts[-1][0]).upper()

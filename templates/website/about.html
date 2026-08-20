@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static ui %}
 
 {% block content %}
 <section class="mx-auto max-w-[1400px] px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-16 lg:px-12">
@@ -7,12 +7,8 @@
   <h1 class="mt-6 display-xl text-[clamp(2.4rem,8vw,7rem)]" data-reveal>{{ site.about_title|default:"The atelier" }}</h1>
 
   <div class="mt-12 grid gap-10 sm:mt-16 sm:gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
-    <div class="media-frame aspect-[4/5] rounded-sm" data-reveal>
-      {% if site.about_image %}
-        <img src="{{ site.about_image.url }}" alt="{{ site.site_name }} studio">
-      {% else %}
-        <img src="{% static 'img/placeholder.svg' %}" alt="Studio">
-      {% endif %}
+    <div class="media-frame aspect-[4/5]" data-reveal>
+      <img src="{{ site.about_image|photo_url:'about' }}" alt="{{ site.site_name }} studio" class="hero-kenburns">
     </div>
     <div class="space-y-6 lg:pt-10" data-reveal data-reveal-delay="0.1">
       <p class="text-xl leading-relaxed text-paper/75">{{ site.about_intro|default:"A boutique studio built around patience, natural light and a deep respect for the people in front of the lens." }}</p>
@@ -41,7 +37,7 @@
             {% if member.photo %}
               <img src="{{ member.photo.url }}" alt="{{ member.name }}" loading="lazy">
             {% else %}
-              <img src="{% static 'img/placeholder.svg' %}" alt="{{ member.name }}" loading="lazy">
+              <img src="{{ ''|photo_url:'portrait' }}" alt="{{ member.name }}" loading="lazy">
             {% endif %}
           </div>
           <h3 class="mt-5 font-display text-xl">{{ member.name }}</h3>

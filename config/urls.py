@@ -28,6 +28,9 @@ handler403 = "apps.core.views.permission_denied"
 handler404 = "apps.core.views.page_not_found"
 handler500 = "apps.core.views.server_error"
 
-if settings.DEBUG:
+# Serve uploaded media when not using S3 (needed on Render free tier / local prod).
+if not getattr(settings, "USE_S3", False):
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.BASE_DIR / "static")

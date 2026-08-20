@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static ui %}
 
 {% block content %}
 <section class="mx-auto max-w-[1400px] px-6 pb-16 pt-16 lg:px-12">
@@ -35,11 +35,7 @@
 
     <aside class="lg:sticky lg:top-28 lg:self-start" data-reveal data-reveal-delay="0.1">
       <div class="media-frame aspect-[4/5]">
-        {% if service.image %}
-          <img src="{{ service.image.url }}" alt="{{ service.title }}">
-        {% else %}
-          <img src="{% static 'img/placeholder.svg' %}" alt="{{ service.title }}">
-        {% endif %}
+        <img src="{{ service.image|photo_url:'service' }}" alt="{{ service.title }}">
       </div>
       <div class="mt-6 rounded-sm border border-gold/15 bg-surface p-7">
         <p class="font-display text-3xl text-gold">{{ service.price_display }}</p>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static ui %}
 
 {% block content %}
 <section class="mx-auto max-w-[1400px] px-6 pb-16 pt-16 lg:px-12">
@@ -9,20 +9,16 @@
 </section>
 
 <section class="mx-auto max-w-[1400px] px-6 pb-24 lg:px-12">
-  <div class="grid gap-8 lg:grid-cols-2" data-stagger>
+  <div class="space-y-8" data-stagger>
     {% for service in services %}
-      <article class="group flex flex-col overflow-hidden rounded-sm border border-gold/15 bg-surface transition hover:border-gold/40">
-        <div class="media-frame aspect-[16/9]">
-          {% if service.image %}
-            <img src="{{ service.image.url }}" alt="{{ service.title }}" loading="lazy">
-          {% else %}
-            <img src="{% static 'img/placeholder.svg' %}" alt="{{ service.title }}" loading="lazy">
-          {% endif %}
+      <article class="group grid overflow-hidden border border-gold/15 bg-surface/50 transition hover:border-gold/35 lg:grid-cols-[1.1fr_0.9fr] {% if forloop.counter|divisibleby:2 %}lg:grid-cols-[0.9fr_1.1fr]{% endif %}">
+        <div class="media-frame aspect-[16/10] lg:aspect-auto lg:min-h-[320px] {% if forloop.counter|divisibleby:2 %}lg:order-2{% endif %}">
+          <img src="{{ service.image|photo_url:'service' }}" alt="{{ service.title }}" loading="lazy">
         </div>
-        <div class="flex flex-1 flex-col p-8">
-          <div class="flex items-start justify-between gap-6">
-            <h2 class="font-display text-3xl">{{ service.title }}</h2>
-            <span class="shrink-0 rounded-full border border-gold/40 px-3 py-1 text-[10px] uppercase tracking-luxe text-gold">{{ service.price_display }}</span>
+        <div class="flex flex-col justify-center p-8 sm:p-10 {% if forloop.counter|divisibleby:2 %}lg:order-1{% endif %}">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <h2 class="font-display text-3xl lg:text-4xl">{{ service.title }}</h2>
+            <span class="shrink-0 border border-gold/40 px-3 py-1 text-[10px] uppercase tracking-luxe text-gold">{{ service.price_display }}</span>
           </div>
           {% if service.tagline %}<p class="mt-3 text-sm text-gold">{{ service.tagline }}</p>{% endif %}
           <p class="mt-4 text-sm leading-relaxed text-paper/60">{{ service.short_description }}</p>
@@ -35,7 +31,7 @@
             </ul>
           {% endif %}
 
-          <div class="mt-auto flex items-center gap-4 pt-8">
+          <div class="mt-8 flex flex-wrap items-center gap-4">
             <a href="{{ service.get_absolute_url }}" class="btn-gold">{{ service.cta_label|default:"Details" }}</a>
             <a href="{% url 'website:contact' %}?ref={{ service.slug }}" class="text-[11px] uppercase tracking-luxe text-paper/50 hover:text-gold">Enquire &rarr;</a>
           </div>
