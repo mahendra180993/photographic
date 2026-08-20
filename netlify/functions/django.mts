@@ -10,7 +10,7 @@ export default async (req: Request, _context: Context) => {
   if (!backend) {
     return new Response(
       [
-        "Lumina Atelier — Django backend not configured.",
+        "MS Photo Studio — Django backend not configured.",
         "",
         "Netlify serves static files and proxies dynamic pages to a Django server.",
         "1. Deploy this repo with the included Dockerfile (see render.yaml).",

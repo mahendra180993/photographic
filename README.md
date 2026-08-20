@@ -1,4 +1,4 @@
-# Lumina Atelier
+# MS Photo Studio
 
 A production-ready **photography studio website + client gallery management platform**, built with
 Django 5, a custom studio dashboard (no `django.contrib.admin` UI), and a cinematic front end using

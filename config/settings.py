@@ -50,7 +50,7 @@ def env_list(key, default=None):
 # ---------------------------------------------------------------------------
 SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
-    "django-insecure-lumina-atelier-development-key-do-not-use-in-production",
+    "django-insecure-ms-photo-studio-development-key-do-not-use-in-production",
 )
 DEBUG = env_bool("DJANGO_DEBUG", True)
 
